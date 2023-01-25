@@ -1,0 +1,73 @@
+﻿@model TradeItemShop
+
+@{
+    ViewData["Title"] = "ТМЛ | Выставление товара на рынок";
+    Layout = "/Views/_Layout.cshtml";
+
+    ViewData["IsShop"] = true;
+}
+
+<div class="box">
+    <div class="block-container name-container c-white">
+        <h1 class="c-title text-normal">Выставление товара на рынок</h1>
+    </div>
+
+    <div class="block-container ucp-validation-error ucp-log-container" asp-validation-summary="ModelOnly"></div>
+
+    <div class="block-container ucp-info-block no-padding ucp-reg-inf-block">
+        <div>
+            <form asp-action="TradeItemPlace" asp-controller="Bank" asp-anti-forgery="true">
+                <div>
+
+                    @Html.HiddenFor(m => m.ShopItemId)
+
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="newSum">Новая стоимость товара: ( старая: @Model.newSum ) </label>
+                            <i class="req">*</i>
+                        </div>
+                        <div class="ucp-row-input">
+                            <input type="number" asp-for="newSum" />
+                            <span asp-validation-for="newSum" />
+                        </div>
+                    </div>
+
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="Count">Количество товара: ( максимум: @Model.Count ) </label>
+                            <i class="req">*</i>
+                        </div>
+                        <div class="ucp-row-input">
+                            <input type="number" asp-for="Count" />
+                            <span asp-validation-for="Count" />
+                        </div>
+                    </div>
+
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="AddedInformation">Дополнительная ифнформация</label>
+                            <i class="req">*</i>
+                        </div>
+                        <div class="ucp-row-input">
+                            <textarea asp-for="AddedInformation"></textarea>
+                            <span asp-validation-for="AddedInformation" />
+                        </div>
+                    </div>
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                        </div>
+                        <div class="ucp-row-input align-center">
+                            <button class="button reg-button button-succ" type="submit">Продать</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.14.0/jquery.validate.min.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validation.unobtrusive/3.2.6/jquery.validate.unobtrusive.min.js"></script>
+}
+

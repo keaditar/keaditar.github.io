@@ -1,0 +1,38 @@
+﻿@model JobModel
+@{
+    ViewData["Title"] = "ТМЛ | Список должностей";
+    Layout = "/Views/_Layout.cshtml";
+    ViewData["IsOrg"] = true;
+
+}
+
+<div class="box">
+    <a class="menu-url" href="@Url.Action("CreateJob", "Bank", new { id = Model.id })"><i class="fas fa-plus-circle"></i> Создать должность</a>
+
+    @foreach (var m in Model.orgJobs)
+    {
+        var userles = await _BankServices.GetOrgJobUser(m);
+        <div class="one-block-orgjob">
+            <strong>@m.Name</strong> | @m.PayDay.ToString("N0") Мемлар
+            <div>
+                @foreach (var u in userles)
+                {
+                    var user = await _BankServices.FindByIdAsync(u.UserId);
+
+                <div class="one-block-user-job">
+                    @Html.Raw(_BankServices.CompleteUserName(user))
+                    <a class="menu-url" href="@Url.Action("DeleteOrgJobUserwarning", "Bank", new { id = Model.id, orgJobId = m.Id, userId = user.Id })"><i class="fas fa-trash-alt"></i> Уволить</a>
+                </div>
+                }
+            </div>
+            <a class="menu-url" href="@Url.Action("UpdateJob", "Bank", new { id = m.Id })"><i class="fas fa-plus-square"></i> Изменить</a>
+            <form action="@Url.Action("DeleteOrgJob","Bank")" method="post" asp-anti-forgery="true" style="display: inline-block;">
+                <input data-val="true" id="id" name="id" type="hidden" value="@m.Id">
+                <button type="submit" class="menu-url button-clear"><i class="fas fa-trash-alt"></i> Удалить должность</button>
+            </form>
+            <a class="menu-url" href="@Url.Action("AddUserToJob", "Bank", new { id = m.Id, orgId = Model.id })"><i class="fas fa-plus-square"></i> Добавить на работу</a>
+        </div>
+    }
+</div>
+
+

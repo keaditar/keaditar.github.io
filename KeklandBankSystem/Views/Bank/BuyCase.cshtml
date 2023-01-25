@@ -1,0 +1,32 @@
+﻿@{
+    ViewData["Title"] = "ТМЛ | Ящик с предметами";
+    Layout = "/Views/_Layout.cshtml";
+
+    var user = await _BankServices.GetUser();
+
+}
+
+    <div class="box">
+        <div class="casino-block">
+            <div class="casino-upper-block" style="padding-top: 42px;line-height: 36px;width: 22%;font-size: 35px;">
+                <span class="money-user">@user.Money</span> <span style="font-size: 21px;">Мемлар</span>
+            </div>
+            <div class="casino-upper-block" style="padding-top: 59px;line-height: 22px;width: 22%;">
+                <div class="js-info-block casino-info-block inf">Откроем ящик?</div>
+            </div>
+        </div>
+        <div style="text-align: center;">
+
+            <div class="casino-upper-block button-casino" style="line-height: 22px;">
+                <div class="casino-info-block grey js-game-button">Купить ящик</div>
+            </div>
+        </div>
+        <div class="js-oppener-this">
+            
+        </div>
+
+    </div>
+
+@section scripts{
+    <script src="~/js/itemCase.js"></script>
+}

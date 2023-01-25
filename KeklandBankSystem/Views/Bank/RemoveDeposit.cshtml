@@ -1,0 +1,47 @@
+﻿@model DepostModel
+@{
+    ViewData["Title"] = "ТМЛ | Взять деньги со счёта депозита";
+    Layout = "/Views/_Layout.cshtml";
+    }
+
+<div class="box">
+    <div class="block-container name-container c-white">
+        <h1 class="c-title text-normal">Взять деньги со счёта депозита</h1>
+    </div>
+
+    <div class="block-container ucp-validation-error ucp-log-container" asp-validation-summary="ModelOnly"></div>
+
+    <div class="block-container ucp-info-block no-padding ucp-reg-inf-block">
+        <div>
+            <form asp-action="RemoveDeposit" asp-controller="Bank" asp-anti-forgery="true">
+                <div>
+                    @Html.HiddenFor(m=> m.UserId)
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="Col">Количество</label>
+                            <i class="req">*</i>
+                        </div>
+                        <div class="ucp-row-input">
+                            <input type="number" asp-for="Col" />
+                            <span asp-validation-for="Col" />
+                        </div>
+                    </div>
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+
+                        </div>
+                        <div class="ucp-row-input align-center">
+                            <button class="button reg-button button-succ" type="submit">Вывести</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.14.0/jquery.validate.min.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validation.unobtrusive/3.2.6/jquery.validate.unobtrusive.min.js"></script>
+}
+

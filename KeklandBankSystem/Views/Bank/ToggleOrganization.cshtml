@@ -1,0 +1,56 @@
+﻿@model int
+@{
+    ViewData["Title"] = "ТМЛ | Закрытие/Открытие организации";
+    Layout = "/Views/_Layout.cshtml";
+
+    var org = await _BankServices.GetOrganizations(Model);
+}
+
+<div class="box">
+    <div class="block-container name-container c-white">
+        <h1 class="c-title text-normal">Закрытие/Открытие организации</h1>
+    </div>
+
+    <div class="block-container ucp-validation-error ucp-log-container" asp-validation-summary="ModelOnly"></div>
+
+    <div class="block-container ucp-info-block no-padding ucp-reg-inf-block">
+        <div>
+            <form asp-action="ToggleOrganization" asp-controller="Bank" asp-anti-forgery="true" method="post">
+                <div>
+                    <input id="Id" name="Id" value="@Model" type="hidden" />
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label>Статус организации:</label>
+                            <i class="req">*</i>
+                        </div>
+                        <div class="ucp-row-input">
+                            <span>
+                                @if (org.Status == "status_ok")
+                                {
+                                    <span>Работает</span>
+                                }
+                                else
+                                {
+                                    <span>Не работает</span>
+                                }
+                            </span>
+                        </div>
+                    </div>
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                        </div>
+                        <div class="ucp-row-input align-center">
+                            <button class="button reg-button button-succ" type="submit">Изменить</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.14.0/jquery.validate.min.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validation.unobtrusive/3.2.6/jquery.validate.unobtrusive.min.js"></script>
+}
+

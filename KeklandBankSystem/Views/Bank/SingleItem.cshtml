@@ -1,0 +1,183 @@
+﻿@model ShopItemModel
+@{
+    ViewData["Title"] = "ТМЛ | Предмет";
+    Layout = "/Views/_Layout.cshtml";
+
+    var user = await _BankServices.GetUser();
+
+    ViewData["IsShop"] = true;
+    var perm = await _BankServices.GetUserPermission(user);
+
+    var org = await _BankServices.GetOrganizations(Model.shopItem.OrgId);
+
+    var govOrg = await _BankServices.GetGoverment(org.GovermentId);
+
+    var list = await _BankServices.GetItemShopStatistics(Model.shopItem);
+
+    var XValues = Newtonsoft.Json.JsonConvert.SerializeObject(list.Select(m => DateTimeTransform.ConvertDateTime(m.Date)));
+
+    var YValues = Newtonsoft.Json.JsonConvert.SerializeObject(list.Select(m => m.BuyCount));
+
+    var prem = false;
+
+    var weith = new WeithLevel
+    {
+        Id = 1,
+        Name = "None"
+    };
+
+    if (user != null)
+    {
+        prem = _BankServices.UserHavePremium(user);
+        weith = await _BankServices.GetWeithLevelUser(user.Welfare + (int)(user.WelfareItem * 3.20));
+    }
+
+}
+
+    <div class="box">
+        <div class="item-main-inf-block">
+            <img class="item-inf-image" style="background-image: linear-gradient( rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.65)), url(@org.ImageUrl);  background-size: cover; background-position: center;"><div class="item-mini-block">
+                <img src="@(govOrg != null ? govOrg.ImageFlagUrl : "/img/default_flag_gov.png")" class="gov-image"><a href="@Url.Action("SingleOrganization", "Bank", new { id = org.Id })" class="gov-text-main" style="position: unset;margin: unset;">@org.Name</a>
+            </div><p class="item-text-information-p">@org.Short_Desc</p>
+        </div>
+
+        @if (!string.IsNullOrEmpty(Model.Message))
+        {
+            @if (Model.TypeMessage)
+            {
+                <div class="block-container ucp-validation-ok">
+                    <i class="icon-ok fal fa-check-circle"></i>
+                    <span style="margin-left: 5px;">@Model.Message</span>
+                </div>
+            }
+            else
+            {
+                <div class="block-container ucp-validation-error-2" style="margin-bottom: 10px">
+                    <i class="icon-error fal fa-exclamation-circle"></i>
+                    <span style="margin-left: 5px;">@Model.Message</span>
+                </div>
+            }
+        }
+
+        <div style="display: flex;grid-gap: 15px;min-height: 250px;align-items: center;">
+            <div class="ucp-image-wrapp">
+                <img class="ucp-image" style="flex: 1;" src="@Model.shopItem.ImageUrl" />
+                @if (org == null)
+                {
+                    <p style="font-size: 11px;color: #6f6b6b;">Добавил: УДАЛЕНО</p>
+                }
+                else
+                {
+                    <p style="font-size: 11px;color: #6f6b6b;">Добавил: <strong>@org.Name</strong></p>
+                }
+                <div class="align-center">
+                </div>
+            </div>
+            <div class="org-info-block" style="flex: 1;display: flex;">
+                <div>
+                    <p class="name-org">@Model.shopItem.Name</p>
+                    <p>@Model.shopItem.Short_Desc</p>
+                </div>
+
+                <div class="chart-container" style="margin: auto;position: relative!important;height: 183px!important;width: 464px!important;">
+                    <canvas id="line-chart"></canvas>
+                </div>
+            </div>
+        </div>
+        @if (user != null)
+        {
+            @if (perm.DeleteItem || perm.EditItem)
+            {
+                @if (perm.DeleteItem)
+                {
+                <form action="@Url.Action("DeleteItem", "Bank")" method="post" asp-anti-forgery="true" style="display: inline-block;">
+                    <input data-val="true" id="id" name="id" type="hidden" value="@Model.shopItem.Id">
+                    <button type="submit" class="menu-url button-clear"><i class="fas fa-trash-alt"></i> Удалить</button>
+                </form>
+                }
+                @if (perm.EditItem)
+                {
+                <a class="menu-url" href="@Url.Action("EditItem", "Bank", new { id = Model.shopItem.Id })">Изменить</a>
+                    }
+                }
+        }
+        @{ 
+            var price = Model.shopItem.Price - ((Model.shopItem.Price / 100) * ((weith.Id - 1) * 2));
+
+            if (prem)
+            {
+                price = Convert.ToInt32(price * 0.9);
+            }
+        }
+        <div class="money-block align-center">
+            <div class="lot-item">
+                <span class="mini-money">Цена:</span>
+                <p class="mega-money">@price.ToString("N0")</p>
+                <span class="mini-money">Мемларов</span>
+            </div>
+            <div class="lot-item">
+                <span class="mini-money">Осталось:</span>
+                <p class="mega-money">@Model.shopItem.Value</p>
+                <span class="mini-money">Шт.</span>
+            </div>
+
+        </div>
+        <div class="align-center" style="margin-top: 20px;">
+            @if (user != null)
+            {
+                @if (Model.shopItem.Price <= user.Money && Model.shopItem.Value > 0 && Model.shopItem.Price > 0)
+                {
+                    <form action="@Url.Action("BuyItem", "Bank", new { id = Model.shopItem.Id})" method="post" asp-anti-forgery="true">
+                        <input data-val="true" id="id" name="id" type="hidden" value="@Model.shopItem.Id">
+                        <button type="submit" class="button reg-button button-succ button-clear"><i class="fas fa-shopping-bag"></i> Купить</button>
+                    </form>
+                }
+            }
+        </div>
+    </div>
+
+@section scripts{
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            new Chart(document.getElementById("line-chart"), {
+                type: 'bar',
+                data: {
+                    labels: @Html.Raw(XValues),
+                    datasets: [
+                        {
+                            data: @Html.Raw(YValues),
+                            label: "Покупок",
+                            backgroundColor: 'rgba(99, 132, 0, 0.6)',
+                            borderColor: 'rgba(99, 132, 0, 1)',
+                            borderWidth: 2,
+                            hoverBorderWidth: 0,
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    title: {
+                        display: true
+                    },
+                    scales:
+                    {
+                        xAxes: [{
+                            barPercentage: 0.3,
+                            categoryPercentage: 1.3
+                        }],
+                        yAxes:
+                        [{
+                            ticks:
+                            {
+                                beginAtZero: true
+                            }
+                        }]
+                    }
+
+                }
+            });
+        });
+    </script>
+}

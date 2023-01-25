@@ -1,0 +1,89 @@
+﻿@model AllOrgTrans
+@{
+    ViewData["Title"] = "ТМЛ | Все транзакции";
+    Layout = "/Views/_Layout.cshtml";
+
+    var user = await _BankServices.GetUser();
+
+    ViewData["IsOrg"] = true;
+}
+
+<div class="box">
+    <table>
+        <thead>
+            <tr>
+                <td>Дата</td>
+                <td>Информация</td>
+                <td>От кого \ кому</td>
+                <td>Количество</td>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var trans in Model.list)
+            {
+                try
+                {
+                    if (trans.BankId1 == Model.id)
+                    {
+                        <tr style="background: #ff121229">
+                            <td>
+                                @DateTimeTransform.ConvertDateTime(trans.Date)
+                            </td>
+                            <td>
+                                @trans.Text
+                            </td>
+                            <td class="flex-table-fix">
+                                @{
+                                    var come = await _BankServices.FindByIdAsync(trans.Id2);
+                                }
+                                @if (trans.Id2 <= 0)
+                                {
+                                    <p>В другие организации</p>
+                                }
+                                else
+                                {
+                                    <p>Организация вывела на счёт <a href="@Url.Action("Balance", "Bank", new { id = come.Id })">@Html.Raw(_BankServices.CompleteUserName(come))</a></p>
+                                }
+                            </td>
+                            <td>
+                                - @Html.Raw(IntTransform.ConvertInt(trans.Value)) Мемлар
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        <tr style="background: #12ff1229;">
+                            <td>
+                                @DateTimeTransform.ConvertDateTime(trans.Date)
+                            </td>
+                            <td>
+                                @trans.Text
+                            </td>
+                            <td class="flex-table-fix">
+                                @{
+                                    var come = await _BankServices.FindByIdAsync(trans.Id1);
+                                }
+                                @if (trans.Id1 != -1)
+                                {
+                                    <p>Взнос от <a href="@Url.Action("Balance", "Bank" , new { id = come.Id })">@Html.Raw(_BankServices.CompleteUserName(come))</a></p>
+                                }
+                                else
+                                {
+                                    <p>От ТМЛ</p>
+                                }
+                            </td>
+                            <td>
+                                + @Html.Raw(IntTransform.ConvertInt(trans.Value)) Мемлар
+                            </td>
+                        </tr>
+                    }
+                }
+                catch (Exception)
+                {
+
+                }
+            }
+        </tbody>
+    </table>
+</div>
+

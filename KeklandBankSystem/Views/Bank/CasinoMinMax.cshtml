@@ -1,0 +1,89 @@
+﻿@model User
+@{
+    ViewData["Title"] = "ТМЛ | Казино \"Больше - меньше\"";
+    Layout = "/Views/_Layout.cshtml";
+
+    var winners = await _BankServices.GetAllWiners();
+}
+
+    <div class="box">
+        <a class="menu-url" href="@Url.Action("CasinoInDraw", "Bank")"><i class="fas fa-coins"></i> Купить коины</a>
+        <a class="menu-url" href="@Url.Action("CasinoWithDraw", "Bank")"><i class="fas fa-exchange-alt"></i> Поменять коины</a>
+
+        <div class="casino-block">
+            <div class="casino-upper-block" style="width: 36%;">
+                <span style="font-size: 50px;" class="js-user-coins odometer">@Model.Coins.ToString().Replace(',', '.')</span>
+                <span class="casino-downer-span">Монет</span>
+            </div>
+
+            <div class="casino-upper-block">
+                <label class="casino-label">Сумма</label>
+                <input type="text" class="casino-input js-casino-input js-sum" value="1" />
+            </div>
+            <div class="casino-upper-block">
+                <label class="casino-label">Процент</label>
+                <input type="text" class="casino-input js-casino-input js-percemtal js-procent" value="50" />
+            </div>
+            <div class="casino-upper-block" style="padding-top: 59px;line-height: 22px;width: 22%;">
+                <div class="js-info-block casino-info-block inf">Сыграем?</div>
+            </div>
+        </div>
+        <div style="text-align: center;">
+            <div>
+                <span style="font-size: 45px;" class="js-winBet">2.00</span>
+                <p style="color: #828282;font-size: 13px;">Возможный выигрыш</p>
+            </div>
+            <div class="casino-bar-outer">
+                <div class="casino-bar-inner js-bar-casino" style="width: 50%;"></div>
+            </div>
+            <div class="casino-upper-block button-casino" style="line-height: 22px;">
+                <div class="casino-info-block grey js-game-button">Играть</div>
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <td>Дата</td>
+                    <td>Победитель</td>
+                    <td>Выигрыш</td>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var trans in winners.Take(15))
+                {
+                    <tr>
+                            <td>
+                                @DateTimeTransform.ConvertDateTime(trans.Date)
+                            </td>
+                            <td>
+                                @{ 
+                                    var user = await _BankServices.FindByIdAsync(trans.WinnerId);
+                                }
+                                @user.Name
+                            </td>
+                            <td>
+                                @{ 
+
+                                    var money = trans.Count;
+
+                                    if (money == 0)
+                                    {
+                                        money += (float)0.01;
+                                    }
+                                }
+                                @(money.ToString("N2")) Коинов
+                            </td>
+                    </tr>
+                   
+                }
+            </tbody>
+        </table>
+    </div>
+
+@section scripts{
+    <script src="~/js/casino.js"></script>
+
+    <script src="~/js/lib/odometr.js"></script>
+    <link href="~/css/odometer-theme-default.css" rel="stylesheet" />
+}

@@ -1,0 +1,144 @@
+﻿@inject BankContext bdb
+
+@model List<Statistic>
+@{
+    ViewData["Title"] = "ТМЛ | График статистики";
+    Layout = "/Views/_Layout.cshtml";
+
+        var XValues = Newtonsoft.Json.JsonConvert.SerializeObject(Model.Select(m => DateTimeTransform.ConvertDateTime(m.Date)));
+
+        var YValues_rect = Newtonsoft.Json.JsonConvert.SerializeObject(Model.Select(m => m.Recd));
+
+        var YValues_spent = Newtonsoft.Json.JsonConvert.SerializeObject(Model.Select(m => m.Spent));
+
+        var YValues_views = Newtonsoft.Json.JsonConvert.SerializeObject(Model.Select(m => m.ViewUser));
+        var YValues_uniqview = Newtonsoft.Json.JsonConvert.SerializeObject(Model.Select(m => m.UniqUser));
+
+        var user = await _BankServices.GetUser();
+
+        var last = await _BankServices.GetLastStatistic();
+
+        var mass = await _BankServices.GetNumberStatistic();
+
+        // stat gov
+
+        var usersAll = await _BankServices.GetAllUser();
+
+        var stat = Model.Last();
+        var wwp = (stat.Spent + stat.Recd) * 2;
+        var wwp_on_people = Convert.ToInt32(wwp / usersAll.Count());
+        var srednya_zp = Convert.ToInt32(bdb.OrgJobs.Average(m => m.PayDay));
+
+        var torg = bdb.ShopItems.Count();
+        var srednya_cena = Convert.ToInt32(bdb.ShopItems.Where(m => m.isActived == true).Average(m => m.Price));
+
+        var torg_oborot = torg * srednya_cena;
+        var buyed = bdb.ShopItemUser.Count();
+        var buyed_oboror = buyed * srednya_cena;
+
+        var userItems = bdb.ShopItemUser.ToList();
+        var kupleno = 0;
+
+        foreach (var i in userItems)
+        {
+            var item = await _BankServices.GetShopItem(i.ShopItemId);
+            kupleno += item.Price;
+        }
+}
+    <div class="box">
+        @if (Model != null)
+        {
+             <canvas id="line-chart" width="800" height="450"></canvas>
+             <canvas id="line-chart-2" width="800" height="450"></canvas>
+             <div class="block-container ucp-valid-info ucp-log-container">
+                 <ul>
+                     <li>Количество денег на счетах: <strong>@mass[0].ToString("N0")</strong> Мемлар</li>
+                     <li>Количество денег в депозитах: <strong>@mass[1].ToString("N0")</strong> Мемлар</li>
+                     <li>Количество денег в организациях: <strong>@mass[2].ToString("N0")</strong> Мемлар</li>
+                     <li>Общее количество денег: <strong>@((mass[0] + mass[1] + mass[2] + kupleno).ToString("N0"))</strong> Мемлар</li>
+                     <li>Мировое ВВП на этой неделе: <strong>@wwp.ToString("N0")</strong> Мемлар</li>
+                     <li>Мировое ВВП На душу населения на этой неделе: <strong>@wwp_on_people.ToString("N0")</strong> Мемлар</li>
+                     <li>Средняя запралата: <strong>@srednya_zp.ToString("N0")</strong> Мемлар</li>
+                     <li>Товарный оборот: <strong>@torg_oborot.ToString("N0")</strong> Мемлар</li>
+                     <li>Покупательский оборот: <strong>@buyed_oboror.ToString("N0")</strong> Мемлар</li>
+                     <li>Средняя цена товара: <strong>@srednya_cena.ToString("N0")</strong> Мемлар</li>
+                     <li>Всего потрачено в магазине: <strong>@kupleno.ToString("N0")</strong> Мемлар</li>
+                     @if (await _BankServices.UserIsInRole(user, "Administrator") || await _BankServices.UserIsInRole(user, "Owner") || _BankServices.UserHavePremium(user))
+                     {
+                         <li class="prob">
+                             Админ-статистика, актуально:
+                             <p>Выплачено: <strong>@last.Spent.ToString("N0")</strong> Мемлар</p>
+                             <p>Получено: <strong>@last.Recd.ToString("N0")</strong> Мемлар</p>
+                         </li>
+                     }
+                 </ul>
+             </div>
+        }
+        else
+        {
+            <div><p>Данных пока нет.</p></div>
+        }
+    </div>
+
+
+@section scripts{
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            new Chart(document.getElementById("line-chart"), {
+                type: 'line',
+                data: {
+                    labels: @Html.Raw(XValues),
+                    datasets: [
+                        {
+                            data: @Html.Raw(YValues_spent),
+                            label: "Потрачено",
+                            borderColor: 'rgba(210, 77, 73, 1)',
+                            fill: false
+                        },
+                        {
+                            data: @Html.Raw(YValues_rect),
+                            label: "Получено",
+                            borderColor: 'rgba(73, 210, 96, 1)',
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    title: {
+                        display: true,
+                        text: 'Бюджет ТМЛ'
+                    }
+                }
+            });
+
+            new Chart(document.getElementById("line-chart-2"), {
+                type: 'line',
+                data: {
+                    labels: @Html.Raw(XValues),
+                    datasets: [
+                        {
+                            data: @Html.Raw(YValues_views),
+                            label: "Всего просмотров",
+                            borderColor: 'rgba(210, 77, 73, 1)',
+                            fill: false
+                        },
+                        {
+                            data: @Html.Raw(YValues_uniqview),
+                            label: "Уникальных",
+                            borderColor: 'rgba(34, 121, 191, 1)',
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    title: {
+                        display: true,
+                        text: 'Просмотры'
+                    }
+                }
+            });
+        });
+    </script>
+}

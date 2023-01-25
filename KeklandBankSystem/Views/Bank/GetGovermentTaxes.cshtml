@@ -1,0 +1,71 @@
+﻿@model GovermentPolitical
+@{
+    ViewData["Title"] = "ТМЛ | Налоговая декларация";
+    Layout = "/Views/_Layout.cshtml";
+    ViewData["IsOrg"] = true;
+
+    var orglist = await _BankServices.GetGovermentOrganization(Model.Id);
+
+    var money = 0;
+
+    if (Model.DaysGovermentTaxes == 0)
+    {
+        foreach (var s in orglist.Where(m => m.Id != Model.MainOrganizationGovermentId).ToList())
+        {
+            money += (s.Balance / 100) * Model.TaxesForOrganization;
+        }
+    }
+}
+
+<div class="box">
+    <div class="block-container name-container c-white">
+        <h1 class="c-title text-normal">Взымание налога</h1>
+    </div>
+
+    <div class="block-container ucp-validation-error ucp-log-container" asp-validation-summary="ModelOnly"></div>
+
+    <div class="block-container ucp-info-block no-padding ucp-reg-inf-block">
+        <div>
+            <form asp-action="GetGovermentTaxes" asp-controller="Bank" asp-anti-forgery="true">
+                <div>
+                    @if (Model.DaysGovermentTaxes == 0)
+                    {
+                        <div class="ucp-reg-input-div">
+                            <div class="ucp-row-label">
+                                <label>Возможность взымания налога:</label>
+                            </div>
+                            <div class="ucp-row-input">
+                                <span>Вы можете взять налог с гос. организаций, вы получите: ~ @Html.Raw(IntTransform.ConvertInt(money)) Мемлар</span>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="ucp-reg-input-div">
+                            <div class="ucp-row-label">
+                                <label>Возможность взымания налога:</label>
+                            </div>
+                            <div class="ucp-row-input">
+                                <span>Подождите ещё: @Model.DaysGovermentTaxes дня</span>
+                            </div>
+                        </div>
+                    }
+
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+
+                        </div>
+                        <div class="ucp-row-input align-center">
+                            <button class="button reg-button button-succ" type="submit">Налог</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.14.0/jquery.validate.min.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validation.unobtrusive/3.2.6/jquery.validate.unobtrusive.min.js"></script>
+}

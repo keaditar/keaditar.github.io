@@ -1,0 +1,115 @@
+﻿@model CreateTicketModel
+@{
+    ViewData["Title"] = "ТМЛ | Заявка на пополнение счёта";
+    Layout = "/Views/_Layout.cshtml";
+}
+
+<div class="box">
+    <div class="block-container name-container c-white">
+        <h1 class="c-title text-normal">Пополнить счёт</h1>
+    </div>
+    <div class="block-container ucp-valid-info ucp-log-container">
+        <ul>
+            <li>Принимаются заявки только с пруфом.</li>
+            <li>За свою запись на стене любой страны ММ вы можете запросить деньги в соотношении 1 лайк = <strong class="js-recorder"></strong> Мемларов.</li>
+            <li>Лайки выдаются только за качественные посты, без прошени лайков за них.</li>
+            <li>Если вы не можете загрузить картинку - загрузите её на <a href="https://imgur.com/">imgur</a>.</li>
+            <li>Переводы денег можно совершить через банк - тут только те деньги, которые выдаёт вам адмнистрация.</li>
+            <li>Максимальное количество картинок - 5. Что бы вставить множество картинок через ссылку, просто введите их через знак ';' или же загрузите их.</li>
+        </ul>
+    </div>
+    <div class="block-container ucp-validation-error ucp-log-container" asp-validation-summary="ModelOnly"></div>
+
+    <div class="block-container ucp-info-block no-padding ucp-reg-inf-block">
+        <div>
+            <form asp-action="CreateTicket" asp-controller="Bank" asp-anti-forgery="true" enctype="multipart/form-data">
+                <div>
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="Text">Информация, подтверждающая ваше пополнение.</label>
+                            <i class="req">*</i>
+                        </div>
+                        <div class="ucp-row-input">
+                            <textarea asp-for="Text"></textarea>
+                            <span asp-validation-for="Text" />
+                        </div>
+                    </div>
+
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="Value">Количество запрашиваемых денег</label>
+                            <i class="req">*</i>
+                        </div>
+                        <div class="ucp-row-input">
+                            <input type="number" asp-for="Value" />
+                            <span asp-validation-for="Value" />
+                        </div>
+                    </div>
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="ImageUrl">Доказательства</label>
+                        </div>
+                        <div class="ucp-row-input image-row-input">
+                            <label class="image-button" for="ImageUrl">
+                                <span class="text-image-s"><i class="fas fa-upload"></i> <span class="js-imageTexter">Загрузить картинки</span></span>
+                            </label>
+
+                            <input type="file" multiple name="ImageUrl" id="ImageUrl" class="image-inp" onchange="prepareImageUpload(this)">
+                            <label>Или</label><input type="text" asp-for="ImageStringUrl">
+                        </div>
+                    </div>
+
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+
+                        </div>
+                        <div class="ucp-row-input align-center">
+                            <button class="button reg-button button-succ" type="submit">Пополнить</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+        function GetMoneyLikeString() {
+            var dat;
+            $.ajax({
+                url: GetAbsoluteUrlFunc("GetMoneyLikeNum", "Bank", {}),
+                type: 'POST',
+                dataType: 'json',
+                async: false,
+
+                complete: function (data) {
+                    dat = JSON.parse(data.responseText);
+                }
+            });
+            return dat;
+        }
+        function GetAbsoluteUrlFunc(Actions, Controllers, objects) {
+            var dat;
+            $.ajax({
+                url: '/getAbsoluteUrl?act=' + Actions + '&Controllers=' + Controllers + '&array=' + JSON.stringify(objects),
+                type: 'POST',
+                data: objects,
+                async: false,
+
+                complete: function (data) {
+                    dat = JSON.parse(data.responseText);
+                }
+            });
+
+            return dat;
+        }
+
+        $(document).ready(function () {
+            $('.js-recorder').text(GetMoneyLikeString());
+        });
+    </script>
+    <!--<script src="~/ckeditor/ckeditor.js"></script>-->
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.14.0/jquery.validate.min.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validation.unobtrusive/3.2.6/jquery.validate.unobtrusive.min.js"></script>
+}

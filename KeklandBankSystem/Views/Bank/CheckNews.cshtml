@@ -1,0 +1,99 @@
+﻿@model CheckNewsModel
+@{
+    ViewData["Title"] = "ТМЛ | Проверка новостей";
+    Layout = "/Views/_Layout.cshtml";
+
+    var count = (await _BankServices.GetAllNews()).Count(m => m.Type == "type_timing");
+}
+
+<div class="box">
+    @if (Model != null)
+    {
+        <div class="block-container name-container c-white">
+            <h1 class="c-title text-normal">Новости ( Ещё @(count - 1) )</h1>
+        </div>
+
+        <div class="block-container ucp-validation-error ucp-log-container" asp-validation-summary="ModelOnly"></div>
+
+        <div class="block-container ucp-info-block no-padding ucp-reg-inf-block">
+            <div>
+                <form asp-action="CheckNews" asp-controller="Bank" asp-anti-forgery="true">
+                    <div>
+                        @Html.HiddenFor(m => m.Id)
+
+                        <div class="ucp-reg-input-div">
+                            <div class="ucp-row-label">
+                                <label>Подтвердить?</label>
+                                <i class="req">*</i>
+                            </div>
+                            <div class="ucp-row-input">
+                                @Html.CheckBoxFor(m => m.isOk)
+                            </div>
+                        </div>
+
+
+                        <div class="ucp-reg-input-div">
+                            <div class="ucp-row-label">
+                                <label asp-for="Name">Небольшое название</label>
+                            </div>
+                            <div class="ucp-row-input">
+                                <input type="text" asp-for="Name" />
+                                <span asp-validation-for="Name" />
+                            </div>
+                        </div>
+
+                        <div class="ucp-reg-input-div">
+                            <div class="ucp-row-label">
+                                <label asp-for="MiniInformation">Небольшое описание</label>
+                            </div>
+                            <div class="ucp-row-input">
+                                <input type="text" asp-for="MiniInformation" />
+                                <span asp-validation-for="MiniInformation" />
+                            </div>
+                        </div>
+
+
+                        <div class="ucp-reg-input-div">
+                            <div class="ucp-row-label">
+                                <label asp-for="Url">Небольшое название</label>
+                            </div>
+                            <div class="ucp-row-input">
+                                <input type="text" asp-for="Url" />
+                                <span asp-validation-for="Url" />
+                            </div>
+                        </div>
+
+                        <div class="ucp-reg-input-div">
+                            <div class="ucp-row-label">
+                                <label asp-for="Rare">Важность новости</label>
+                            </div>
+                            <div class="ucp-row-input">
+                                <input type="text" asp-for="Rare" />
+                                <span asp-validation-for="Rare" />
+                            </div>
+                        </div>
+
+                        <div class="ucp-reg-input-div">
+                            <div class="ucp-row-label">
+
+                            </div>
+                            <div class="ucp-row-input align-center">
+                                <button class="button reg-button button-succ" type="submit">Сохранить</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    }
+    else
+    {
+        <p>На сегодня новости закончены, милорд!</p>
+        <a href="@Url.Action("Index","Bank")">На главную</a>
+    }
+</div>
+
+@section scripts{
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.14.0/jquery.validate.min.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validation.unobtrusive/3.2.6/jquery.validate.unobtrusive.min.js"></script>
+}

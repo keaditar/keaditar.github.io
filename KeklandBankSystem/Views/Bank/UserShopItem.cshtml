@@ -1,0 +1,92 @@
+﻿@model UserItemModel
+@{
+    ViewData["Title"] = "ТМЛ | Покупки пользователя '" + Model.user.Name + "'";
+    Layout = "/Views/_Layout.cshtml";
+    ViewData["IsShop"] = true;
+
+    var user = await _BankServices.GetUser();
+
+}
+
+    <div class="box">
+        <div class="block-container name-container c-white">
+            <h1 class="c-title text-normal">Покупки пользователя @Html.Raw(_BankServices.CompleteUserName(Model.user))</h1>
+        </div>
+        @if (!string.IsNullOrEmpty(Model.Message))
+        {
+            @if (Model.TypeMessage)
+            {
+                <div class="block-container ucp-validation-ok">
+                    <i class="icon-ok fal fa-check-circle"></i>
+                    <span style="margin-left: 5px;">@Model.Message</span>
+                </div>
+            }
+            else 
+            {
+                <div class="block-container ucp-validation-error-2" style="margin-bottom: 10px">
+                    <i class="icon-error fal fa-exclamation-circle"></i>
+                    <span style="margin-left: 5px;">@Model.Message</span>
+                </div>
+            }
+        }
+        <div class="block-container posts-container">
+
+            @foreach (var item in Model.items)
+            {
+                var type = "";
+
+                var lot = await _BankServices.GetShopItem(item.ShopItemId);
+
+                if (lot.RareType == 0)
+                {
+                    type = "Обычная";
+                }
+                else if (lot.RareType == 1)
+                {
+                    type = "Дорогая";
+                }
+                else if (lot.RareType == 2)
+                {
+                    type = "Редкая";
+                }
+                else if (lot.RareType == 3)
+                {
+                    type = "Эпическая";
+                }
+                else if (lot.RareType == 4)
+                {
+                    type = "ЛЕГЕНДАРНАЯ";
+                }
+
+                <div class="post-item no-padding  block-item-rare-@lot.RareType">
+                    <a class="post-item-name">
+                        <div class="wpg-head">
+                            <div class="wrapp-image-cut no-padding">
+                                <img class="post-image" src="@lot.ImageUrl">
+                            </div>
+
+                            <span class="post-item-name post-item-name-url">@lot.Name</span>
+                        </div>
+
+                    </a>
+                    <div class="wpg-list-info-block">
+                        <p class="post-item-text">@lot.Short_Desc</p>
+                        <p class="post-item-date"><i class="fas fa-comment-alt-dollar"></i> Куплена за @lot.Price.ToString("N0") Мемлар</p>
+                        <p class="post-item-date"><i class="fas fa-caret-square-right"></i> Редкость: <span class="text-rare-@lot.RareType">@type</span></p>
+                        <p class="post-item-text">Количество: @item.Value</p>
+                        
+                        @if (user != null)
+                        {
+                            @if (user.Id == Model.user.Id)
+                            {
+                                <div style="text-align: center;margin-top: 24px;">
+                                    <a href="@Url.Action("TradeItemPlace", "Bank", new { idItem = lot.Id })" class="button reg-button button-succ">На рынок</a>
+                                    <a title="Вы моментально получите 35% от стоимости" href="@Url.Action("TradeItemGovermnet", "Bank", new { id = lot.Id })" class="button reg-button button-succ">Продать государству</a>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </div>

@@ -1,0 +1,50 @@
+﻿@model AddUserToJob
+@{
+    ViewData["Title"] = "ТМЛ | Добавление пользователя на работу " + Model.orgJob.Name;
+    Layout = "/Views/_Layout.cshtml";
+
+}
+
+<div class="box">
+    <div class="block-container name-container c-white">
+        <h1 class="c-title text-normal">Создание класса работы</h1>
+    </div>
+
+    <div class="block-container ucp-validation-error ucp-log-container" asp-validation-summary="ModelOnly"></div>
+
+    <div class="block-container ucp-info-block no-padding ucp-reg-inf-block">
+        <div>
+            <form asp-action="AddUserToJob" asp-controller="Bank" asp-anti-forgery="true" method="post">
+                <div>
+                    @Html.HiddenFor(m => m.orgJob.Id)
+                    @Html.HiddenFor(m => m.orgJob.Name)
+
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="Name">Имя пользователя</label>
+                            <i class="req">*</i>
+                        </div>
+                        <div class="ucp-row-input">
+                            <input type="text" asp-for="Name" />
+                            <span asp-validation-for="Name" />
+                        </div>
+                    </div>
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+
+                        </div>
+                        <div class="ucp-row-input align-center">
+                            <button class="button reg-button button-succ" type="submit">Добавить</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.14.0/jquery.validate.min.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validation.unobtrusive/3.2.6/jquery.validate.unobtrusive.min.js"></script>
+}
+

@@ -1,0 +1,317 @@
+﻿@model IndexPanelForms
+@{
+    ViewData["Title"] = "ТМЛ | Главная страница";
+    Layout = "/Views/_Layout.cshtml";
+
+    var user = await _BankServices.GetUser();
+
+
+    var topUser = new List<User>
+    {
+        BankServices.topUser.ElementAtOrDefault(0),
+        BankServices.topUser.ElementAtOrDefault(1),
+        BankServices.topUser.ElementAtOrDefault(2)
+    };
+
+    var s = _BankServices.GetTopOrganization(3);
+
+    var toporg = new List<Organization>
+    {
+        s.ElementAtOrDefault(0),
+        s.ElementAtOrDefault(1),
+        s.ElementAtOrDefault(2)
+    };
+
+    var h = await _BankServices.GetTopGoverment(3);
+
+    var topgov = new List<GovermentStatistics>
+    {
+        h.ElementAtOrDefault(0),
+        h.ElementAtOrDefault(1),
+        h.ElementAtOrDefault(2)
+    };
+
+    var news = await _BankServices.GetAllNews();
+
+    news = news.Where(m => m.Type == "status_ok").Take(Math.Max(25, news.Count())).ToList();
+}
+
+    <div class="box">
+        <div>
+            <div class="index-tiles-block">
+                @foreach (var k in Model.LastArticles)
+                {
+                    <div style="flex: 1;position: relative;max-width: 33.4%;" class="index-tiles-style">
+                        <div style="background-image: linear-gradient( rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.55)), url(@k.ImageUrl);width: 100%;height: 100%;position: absolute;background-position: center;background-size: cover;border-radius: 4px;">
+                            <a href="@Url.Action("SingleArticle","Bank", new { id = k.Id })" class="article-text">
+                                <p class="article-main-text">@k.MiniText</p>
+                            <p class="article-time-text"><i class="far fa-clock" aria-hidden="true"></i> @DateTimeTransform.ConvertDateTime(k.Date)</p>
+                            </a>
+                        </div>
+                    </div>
+                }
+                <a style="flex: 1; position: relative;" class="index-tiles-style rekl-phone" href="@Model.SmallUrl" target="_blank">
+                    <div style="width: 100%; height: 100%;background: url(@Model.SmallAds);background-size: cover;background-position: center;"></div>
+                    <p class="rekl-name">РЕКЛАМА</p>
+                </a>
+            </div>
+
+            <div class="index-tiles-second">
+                <div style="flex: 2;" class="index-tiles-style">
+                    <div style="display: flex; justify-content: space-around;">
+                        <p class="index-stat-text">Государства:</p>
+                        <p class="index-stat-text">Организации:</p>
+                        <p class="index-stat-text">Люди:</p>
+                        <p class="index-stat-text">Статистика:</p>
+                    </div>
+                    <div style="display: flex;">
+                        <div style="flex: 1" class="index-stat-outer">
+                            @{
+                                var a = 0;
+                                var str = new string[3];
+                            }
+
+                            @foreach (var gov in topgov)
+                            {
+
+                                switch (a)
+                                {
+                                    case 0: str = new string[2] { "gold", "" }; break;
+                                    case 1: str = new string[2] { "ser", "none" }; break;
+                                    case 2: str = new string[2] { "bron", "none" }; break;
+                                }
+
+
+                                @if (gov != null)
+                                {
+
+                                    <div class="index-stat-wrapper @str[1]">
+                                        <a href="@Url.Action("SingleGoverment","Bank", new { id = gov.gov.Id })" class="index-stat-image-outer">
+                                            <img src="@gov.gov.ImageFlagUrl" class="index-stat-image-wrapp">
+                                        </a>
+                                        <div>
+                                            <a href="@Url.Action("SingleGoverment","Bank", new { id = gov.gov.Id })" class="index-stat-name @str[0]">@gov.gov.Name</a>
+                                            <span class="index-name-inf">@Html.Raw(IntTransform.ConvertInt(gov.Balance)) Мемлар </span>
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="index-inf-load @str[1]"><p><i class="fas fa-spinner"></i> <span class="text-index-css">Нет данных</span></p></div>
+                                }
+                                a++;
+                            }
+                        </div>
+
+                        <div style="flex: 1" class="index-stat-outer">
+                            @{
+                                a = 0;
+                            }
+
+                            @foreach (var org in toporg)
+                            {
+                                switch (a)
+                                {
+                                    case 0: str = new string[2] { "gold", "" }; break;
+                                    case 1: str = new string[2] { "ser", "none" }; break;
+                                    case 2: str = new string[2] { "bron", "none" }; break;
+                                }
+
+                                @if (org != null)
+                                {
+                                    <div class="index-stat-wrapper @str[1]">
+                                        <a href="@Url.Action("SingleOrganization","Bank", new { id = org.Id })" class="index-stat-image-outer">
+                                            <img src="@org.ImageUrl" class="index-stat-image-wrapp">
+                                        </a>
+                                        <div>
+                                            <a href="@Url.Action("SingleOrganization","Bank", new { id = org.Id })" class="index-stat-name @str[0]">@org.Name</a>
+                                            <span class="index-name-inf">@Html.Raw(IntTransform.ConvertInt(org.Balance)) Мемлар </span>
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="index-inf-load @str[1]"><p><i class="fas fa-spinner"></i> <span class="text-index-css">Нет данных</span></p></div>
+                                }
+                                a++;
+                            }
+                        </div>
+
+                        <div style="flex: 1" class="index-stat-outer">
+                            @{
+                                a = 0;
+                            }
+
+                            @foreach (var usr in topUser)
+                            {
+                                switch (a)
+                                {
+                                    case 0: str = new string[2] { "gold", "" }; break;
+                                    case 1: str = new string[2] { "ser", "none" }; break;
+                                    case 2: str = new string[2] { "bron", "none" }; break;
+                                }
+
+                                @if (usr != null)
+                                {
+                                    <div class="index-stat-wrapper @str[1]">
+                                        <div class="index-stat-image-outer">
+                                            <img src="@usr.ImageUrl" class="index-stat-image-wrapp">
+                                        </div>
+                                        <div>
+                                            <span class="index-stat-name @str[0]">@usr.Name</span>
+                                            <span class="index-name-inf">@Html.Raw(IntTransform.ConvertInt(usr.Money)) Мемлар </span>
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="index-inf-load @str[1]"><p><i class="fas fa-spinner"></i> <span class="text-index-css">Нет данных</span></p></div>
+                                }
+                                a++;
+                            }
+                        </div>
+                        <div style="flex: 1" class="index-stat-outer">
+                            <div class="index-stat-wrapper ">
+                                <i class="far fa-chart-bar" style="font-size: 30px;color: #9e9e9e;"></i>
+                                <div>
+                                    <a class="index-stat-name">Просмотров:</a>
+                                    <span class="index-name-inf js-counterView">@Model.LastStatistics.ViewUser</span>
+                                </div>
+                            </div>
+                            <div class="index-stat-wrapper none">
+                                <i class="far fa-chart-bar" style="font-size: 30px;color: #9e9e9e;"></i>
+                                <div>
+                                    <a class="index-stat-name">Уникальных просмотров:</a>
+                                    <span class="index-name-inf">@(Model.LastStatistics.UniqUser)</span>
+                                </div>
+                            </div>
+                            <div class="index-stat-wrapper none">
+                                <i class="far fa-chart-bar" style="font-size: 30px;color: #9e9e9e;"></i>
+                                <div>
+                                    <a class="index-stat-name">Потрачено:</a>
+                                    <span class="index-name-inf">@Html.Raw(IntTransform.ConvertInt(Model.LastStatistics.SpentMoneyAll)) Мемлар</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <a style="flex: 1; position: relative;" class="index-tiles-style ad-pc" href="@Model.SmallUrl" target="_blank">
+                    <div style="width: 100%; height: 100%;background: url(@Model.SmallAds);background-size: cover;background-position: center;"></div>
+                    <p class="rekl-name">РЕКЛАМА</p>
+                </a>
+            </div>
+
+            <div class="index-tiles-three">
+                <div style="flex: 1;overflow: auto;" class="index-tiles-style">
+                    <p style="text-align: center;margin-top: 20px;color: #797979; margin-bottom: 10px;">Новости:</p>
+                    @foreach (var ns in news)
+                    {
+                        <div class="index-stat-wrapper news-block" style="height: 77px;">
+                            @if (ns.Rare == 1)
+                            {
+                                <i class="fas fa-signal-2" style="font-size:30px; color:#70af60"></i>
+                            }
+                            @if (ns.Rare == 2)
+                            {
+                                <i class="fas fa-signal-3" style="font-size:30px; color: #b9bf58;"></i>
+                            }
+                            @if (ns.Rare == 3)
+                            {
+                                <i class="fas fa-signal-4" style="font-size:30px; color: #dc9462;"></i>
+                            }
+                            @if (ns.Rare == 4)
+                            {
+                                <i class="fas fa-signal" style="font-size:30px; color: #da6e6e;"></i>
+                            }
+                            <div style="overflow: hidden;height: 48px;">
+                                <a target="_blank" href="@ns.Url" class="index-stat-name" style="max-width: 100%;">@ns.Name</a>
+                                <span class="index-name-inf">@ns.MiniInformation</span>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div class="index-tiles-three-wrapp">
+                    <a style="flex: 1; position: relative;" class="index-tiles-style" href="@Model.BugUrl" target="_blank">
+                        <div style="width: 100%; height: 100%;background: url(@Model.BigAds);background-size: cover;background-position: center;"></div>
+                        <p class="rekl-name">РЕКЛАМА</p>
+                    </a>
+                    <div style="flex: 1;position: relative;" class="index-tiles-style">
+                        <div style="background: linear-gradient( rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.65)), url(https://cdna.artstation.com/p/assets/images/images/001/184/938/large/eddie-mendoza-junktownspaceship.jpg?1441770764); background-position: center; background-size: cover;" class="block-non-ready"></div>
+                        <div class="non-ready-outer">
+                            <div class="non-ready-bg-outer">
+                                <div class="non-ready-cog"></div>
+                            </div><div class="non-ready-p">БЛОК ЕЩЁ НЕ ГОТОВ НО СКОРО ТУТ ЧТО-ТО БУДЕТ</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <h2>Список государств:</h2>
+        <div class="block-container posts-container">
+            <div class="post-item no-padding">
+                <a href="@Url.Action("SingleGovermentDefault", "Bank")" class="post-item-name">
+                    <div class="wpg-head">
+                        <div class="wrapp-image-cut no-padding">
+                            <img class="post-image" style="background-image: linear-gradient( rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.65)), url(/img/default_hover_gov.png);">
+                        </div>
+
+                        <div class="gov-item-textimg">
+                            <img src="/img/default_flag_gov.png" style="position: unset!important;" class="gov-image">
+
+                            <span style="padding:0;position:unset!important;" class="post-item-name post-item-name-url" href="@Url.Action("SingleGovermentDefault", "Bank")">Нейтральные организации</span>
+                        </div>
+                    </div>
+                </a>
+                <div class="wpg-list-info-block">
+                    <p class="post-item-text">Все не государственные организации, которые не подчиняются государствам, не платят налог. Их основная задача - заработать денег на продаже товаров.</p>
+                </div>
+            </div>
+            @foreach (var org in Model.allGovs)
+            {
+                <div class="post-item no-padding">
+                    <a href="@Url.Action("SingleGoverment", "Bank", new { id = org.Id })" class="post-item-name">
+                        <div class="wpg-head">
+                            <div class="wrapp-image-cut no-padding">
+                                <img class="post-image" style="background-image: linear-gradient( rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.65)), url(@org.ImageCoverUrl);">
+                            </div>
+
+                            <div class="gov-item-textimg">
+                                <img src="@org.ImageFlagUrl" style="position: unset!important;" class="gov-image">
+
+                                <span style="padding:0;position:unset!important;" class="post-item-name post-item-name-url" href="@Url.Action("SingleOrganization", "Bank", new { id = org.Id })">@org.Name</span>
+                            </div>
+                        </div>
+
+                    </a>
+                    <div class="wpg-list-info-block">
+                        @{
+                            var userOrg = await _BankServices.FindByIdAsync(org.LeaderId);
+                        }
+                        @Html.Raw(_BankServices.CompleteUserName(userOrg))
+                        <p class="post-item-text">@org.Information</p>
+                        <p class="post-item-date"><i class="fas fa-comment-alt-dollar"></i> Бюджет: @Html.Raw(IntTransform.ConvertInt(org.AllOrganizationBalance)) Мемлар</p>
+                        <p class="post-item-date"><i class="fas fa-funnel-dollar"></i> Установленный налог: @org.TaxesForOrganization%</p>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="navigatin-block">
+            <div class="nav-inner">
+                @for (var pg = 1; pg <= ViewBag.CountPage; pg++)
+                {
+                    @if (pg == @ViewBag.CurrectPage)
+                    {
+                        <a href="@Url.Action("Index","Bank", new { page = pg })" class="navig on">@(pg)</a>
+                    }
+                    else
+                    {
+                        <a href="@Url.Action("Index","Bank", new { page = pg })" class="navig">@(pg)</a>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+
+

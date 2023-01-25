@@ -1,0 +1,31 @@
+﻿@model UserDepositModel
+@{
+    ViewData["Title"] = "ТМЛ | Депозиты пользователя";
+    Layout = "/Views/_Layout.cshtml";
+
+    var user = await _BankServices.GetUser();
+}
+
+<div class="box">
+    @if (user.Id == Model.user.Id)
+    {
+        <a class="menu-url" href="@Url.Action("AddDeposit", "Bank")"><i class="fa fa-gavel"></i> Внести в депозит</a>
+        @if (Model.dep.Money > 0)
+        {
+            <a class="menu-url" href="@Url.Action("RemoveDeposit", "Bank")"><i class="fa fa-gavel"></i> Вывести из депозита</a>
+        }
+    }
+    @if (_BankServices.IsUserAdminNonAs(user))
+    {
+        <a class="menu-url" href="@Url.Action("UserEditDeposit", "Bank", new { id = Model.user.Id })"><i class="fas fa-edit"></i> Редактировать</a>
+    }
+
+    <div class="block-container name-container c-white">
+        <h1 class="c-title text-normal">Депозит аккаунта @Html.Raw(_BankServices.CompleteUserName(Model.user))</h1>
+    </div>
+    <div class="align-center money-block">
+        <p class="mega-money">@Model.dep.Money.ToString("N0")</p>
+        <span class="mini-money">Мемларов</span>
+    </div>
+</div>
+

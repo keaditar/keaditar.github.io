@@ -1,0 +1,123 @@
+﻿@model EntityTicketOrganizationModel
+@{
+    ViewData["Title"] = "ТМЛ | Заявка на создание организации";
+    Layout = "/Views/_Layout.cshtml";
+    ViewData["IsOrg"] = true;
+}
+
+    <div class="box">
+        <div class="block-container name-container c-white">
+            <h1 class="c-title text-normal">Заявка на создание организации</h1>
+        </div>
+
+        <div class="block-container ucp-validation-error ucp-log-container" asp-validation-summary="ModelOnly"></div>
+
+        <p style="margin-top:15px;">Последние 10 регистраций на аккаунте:</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <td>Дата</td>
+                    <td>Текст</td>
+                    <td>Комментарий админа</td>
+                    <td>Решение</td>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var ticket in Model.lastTickets)
+                {
+
+                <tr>
+                    <td>
+                        @DateTimeTransform.ConvertDateTime(ticket.Date)
+                    </td>
+                    <td>
+                        @ticket.Text
+                    </td>
+                    <td>
+                        @ticket.AdminInformation
+                    </td>
+                    <td>
+                        @if (ticket.Status == "status_ok")
+                        {
+                            <span class="accepted-tick">Принято</span>
+                        }
+                        else if (ticket.Status == "status_declaim")
+                        {
+                            <span class="declaim-tick">Отказано</span>
+                        }
+                        else
+                        {
+                            <span class="timing-tick">На рассмотрении</span>
+                        }
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="block-container ucp-info-block no-padding ucp-reg-inf-block">
+            <div>
+                <form asp-action="CreateTicketOrganization" asp-controller="Bank" asp-anti-forgery="true" enctype="multipart/form-data">
+                    <div>
+                        <div class="ucp-reg-input-div">
+                            <div class="ucp-row-label">
+                                <label asp-for="ticketOrg.Name">Название организации</label>
+                                <i class="req">*</i>
+                            </div>
+                            <div class="ucp-row-input">
+                                <input type="text" asp-for="ticketOrg.Name" />
+                                <span asp-validation-for="ticketOrg.Name" />
+                            </div>
+                        </div>
+                        <div class="ucp-reg-input-div">
+                            <div class="ucp-row-label">
+                                <label asp-for="ticketOrg.Information">Информация</label>
+                                <i class="req">*</i>
+                            </div>
+                            <div class="ucp-row-input">
+                                <input type="text" asp-for="ticketOrg.Information" />
+                                <span asp-validation-for="ticketOrg.Information" />
+                            </div>
+                        </div>
+                        <div class="ucp-reg-input-div">
+                            <div class="ucp-row-label">
+                                <label asp-for="ticketOrg.VKUrl">Ссылка на группу ВК</label>
+                                <i class="req">*</i>
+                            </div>
+                            <div class="ucp-row-input">
+                                <input type="text" asp-for="ticketOrg.VKUrl" />
+                                <span asp-validation-for="ticketOrg.VKUrl" />
+                            </div>
+                        </div>
+                        <div class="ucp-reg-input-div">
+                            <div class="ucp-row-label">
+                                <label asp-for="ImageUrl">Картинка</label>
+                            </div>
+                            <div class="ucp-row-input image-row-input">
+                                <label class="image-button" for="ImageUrl">
+                                    <span class="text-image-s"><i class="fas fa-upload"></i> <span class="js-imageTexter">Загрузить картинку</span></span>
+                                </label>
+
+                                <input type="file" name="ImageUrl" id="ImageUrl" class="image-inp" onchange="prepareImageUpload(this);">
+                                <label>Или</label><input type="text" asp-for="ImageStringUrl">
+                            </div>
+                        </div>
+                        <div class="ucp-reg-input-div">
+                            <div class="ucp-row-label">
+
+                            </div>
+                            <div class="ucp-row-input align-center">
+                                <button class="button reg-button button-succ" type="submit">Подать заявку</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+@section scripts{
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.14.0/jquery.validate.min.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validation.unobtrusive/3.2.6/jquery.validate.unobtrusive.min.js"></script>
+}

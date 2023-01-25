@@ -1,0 +1,73 @@
+﻿@model List<Project>
+@{
+    ViewData["Title"] = "ТМЛ | Все проекты";
+    Layout = "/Views/_Layout.cshtml";
+}
+
+    <div class="box">
+        <div class="block-container name-container c-white">
+            <h1 class="c-title text-normal">Активные проекты:</h1>
+        </div>
+
+        <div class="block-container posts-container">
+            @foreach (var org in Model.Where(m => m.Balance < m.Target))
+            {
+                <div class="post-item no-padding">
+                    <a href="@Url.Action("SingleProject", "Bank", new { id = org.Id })" class="post-item-name">
+                        <div class="wpg-head">
+                            <div class="wrapp-image-cut no-padding">
+                                <img class="post-image" src="@org.ImageUrl">
+                            </div>
+
+                            <span class="post-item-name post-item-name-url" href="@Url.Action("SingleProject", "Bank", new { id = org.Id })">@org.Name</span>
+                        </div>
+
+                    </a>
+                    <div class="wpg-list-info-block">
+                        <p class="post-item-text">@org.Info</p>
+                        <p class="post-item-text"><i class="fas fa-comment-alt-dollar"></i> Цель: @org.Target.ToString("N0") Мемлар</p>
+                        <p class="post-item-text align-center">
+                            Собрано:
+                            <div class="progress-bar-outer" style="height: 18px;line-height: 18px;">
+                                <div class="progress-bar-inner" style="width: @((org.Balance * 100) / org.Target)%; min-width: 15%;">
+                                    <span>@((org.Balance * 100) / org.Target)%</span>
+                                </div>
+                            </div>
+                        </p>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <p class="org-separetor">Завершённые проекты:</p>
+        <div class="block-container posts-container">
+            @foreach (var org in Model.Where(m => m.Balance >= m.Target))
+            {
+                <div class="post-item no-padding">
+                    <a href="@Url.Action("SingleProject", "Bank", new { id = org.Id })" class="post-item-name">
+                        <div class="wpg-head">
+                            <div class="wrapp-image-cut no-padding">
+                                <img class="post-image" src="@org.ImageUrl">
+                            </div>
+
+                            <span class="post-item-name post-item-name-url" href="@Url.Action("SingleProject", "Bank", new { id = org.Id })">@org.Name</span>
+                        </div>
+
+                    </a>
+                    <div class="wpg-list-info-block">
+                        <p class="post-item-text">@org.Info</p>
+                        <p class="post-item-text align-center">
+                            Собрано:
+                            <div class="progress-bar-outer" style="height: 18px;line-height: 18px;">
+                                <div class="progress-bar-inner" style="width: @((org.Balance * 100) / org.Target)%;">
+                                    <span>@org.Target.ToString("N0") Мемлар</span>
+                                </div>
+                            </div>
+                        </p>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+

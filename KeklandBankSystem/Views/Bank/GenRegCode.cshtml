@@ -1,0 +1,28 @@
+﻿@{
+    ViewData["Title"] = "ТМЛ | Генерация рег-кода";
+    Layout = "/Views/_Layout.cshtml";
+}
+
+<div class="box">
+    <div class="align-center money-block">
+        <p class="mega-money reg-codes"></p>
+    </div>
+    <div class="button button-succ gencode_reg">Сгенерировать</div>
+</div>
+
+<script>
+    $(document).on("click", ".gencode_reg", function () {
+        $.ajax({
+                    url: '@Url.Action("GenerateCodeAjax", "Bank")',
+                    type: 'POST',
+                    dataType: 'json',
+
+            complete: function (data) {
+                $('.reg-codes').text(data.responseText);
+                    },
+                    error: function (response) {
+                        console.log(response);
+                    }
+                });
+    });
+</script>

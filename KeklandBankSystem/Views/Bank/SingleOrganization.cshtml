@@ -1,0 +1,361 @@
+﻿@model SingleOrganizationModel
+@{
+    ViewData["Title"] = "ТМЛ | Организация '" + Model.organization.Name + "'";
+    Layout = "/Views/_Layout.cshtml";
+
+    var organization_tranz = await _BankServices.GetOrganizationTransactions(Model.organization, 20);
+
+    var user = await _BankServices.GetUser();
+
+    ViewData["IsOrg"] = true;
+
+    var isAdmin = false;
+    var perm = await _BankServices.GetUserPermission(user);
+    var prem = false;
+    GovermentPolitical GovermentLeader = null;
+
+    if (user != null)
+    {
+        isAdmin = await _BankServices.UserIsInRole(user, "Administrator") || await _BankServices.UserIsInRole(user, "Owner");
+        prem = _BankServices.UserHavePremium(user);
+        GovermentLeader = (await _BankServices.GetAllGoverments()).Where(m => m.LeaderId == user.Id).Where(m => m.Id == Model.organization.GovermentId).FirstOrDefault();
+    }
+
+    var adminOrg = await _BankServices.FindByIdAsync(Model.organization.AdminId);
+    var gov = await _BankServices.GetGoverment();
+
+    var zam1 = await _BankServices.FindByIdAsync(Model.organization.Zam1Name);
+    var zam2 = await _BankServices.FindByIdAsync(Model.organization.Zam2Name);
+}
+
+    <div class="box">
+        @if (Model.GovermentPolitical != null)
+        {
+            <div class="item-main-inf-block">
+                <img class="item-inf-image" style="background-image: linear-gradient( rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.65)), url(@Model.GovermentPolitical.ImageCoverUrl);  background-size: cover; background-position: center;"><div class="item-mini-block">
+                    <img src="@Model.GovermentPolitical.ImageFlagUrl" class="gov-image"><a href="@Url.Action("SingleGoverment", "Bank", new { id = Model.GovermentPolitical.Id })" class="gov-text-main" style="position: unset;margin: unset;">@Model.GovermentPolitical.Name</a>
+                </div><p class="item-text-information-p">@Model.GovermentPolitical.Information</p>
+            </div>
+        }
+        else
+        {
+            <div class="item-main-inf-block">
+                <img class="item-inf-image" style="background-image: linear-gradient( rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.65)), url(/img/default_hover_gov.png);  background-size: cover; background-position: center;"><div class="item-mini-block">
+                    <img src="/img/default_flag_gov.png" class="gov-image"><a href="@Url.Action("SingleGovermentDefault", "Bank")" class="gov-text-main" style="position: unset;margin: unset;">Нейтральные организации</a>
+                </div><p class="item-text-information-p">Все не государственные организации, которые не подчиняются государствам, не платят налог. Их основная задача - заработать денег на продаже товаров. Они находятся вне юрисдикции других государств, и могут изменяться только под влянием ТМЛ, если были нарушены правила ТМЛ.</p>
+            </div>
+        }
+        <div style="display: flex;grid-gap: 15px;">
+
+            <div>
+                <div class="ucp-image-wrapp">
+                    <img class="ucp-image" src="@Model.organization.ImageUrl">
+                </div>
+                <div class="align-center">
+                    <p class="admin-org">Администратор:  @Html.Raw(_BankServices.CompleteUserName(adminOrg))<p></p>
+                    @if (zam1 != null || zam2 != null)
+                    {
+                        <p class="admin-org">Заместители: @(zam1 != null ? zam1.Name : "") @(zam2 != null ? zam2.Name : "")</p>
+                    }
+                </div>
+            </div>
+            <div class="org-info-block">
+                @if (Model.organization.Status == "status_ok")
+                {
+                    <p class="name-org">@Model.organization.Name</p>
+                }
+                else
+                {
+                    <p class="name-org"><i class="fas fa-lock"></i> @Model.organization.Name</p>
+                }
+                <p>@Model.organization.Short_Desc</p>
+
+                <div style="margin-top: 20px;">
+                    @if (Model.organization.VkUrl != "" && Model.organization.VkUrl != null)
+                    {
+                        <a class="menu-url" href="@Model.organization.VkUrl"><i class="fab fa-vk"></i></a>
+                    }
+
+                    @if (user != null)
+                    {
+                        var isPrivillegue = user.Id == Model.organization.AdminId || Model.organization.Zam1Name == user.Id || Model.organization.Zam2Name == user.Id;
+
+                        @if (GovermentLeader != null || perm.ChangeOrganizationInfo)
+                        {
+                            @if (Model.organization.Status == "status_ok")
+                            {
+                                <a class="menu-url" href="@Url.Action("ToggleOrganization", "Bank", new { id = Model.organization.Id })"><i class="fas fa-edit"></i> Закрыть гос. организацию</a>
+                            }
+                            else
+                            {
+                                <a class="menu-url" href="@Url.Action("ToggleOrganization", "Bank", new { id = Model.organization.Id })"><i class="fas fa-edit"></i> Открыть гос. организацию</a>
+                            }
+
+                        }
+
+                        @if (Model.organization.Status == "status_ok")
+                        {
+                            <a class="menu-url" href="@Url.Action("SendMoneyOrganization", "Bank", new { id = Model.organization.Id })"><i class="fas fa-sign-in-alt"></i> Сделать взнос</a>
+                        }
+
+                        @if (isPrivillegue || perm.JobSettings || perm.CreateItemOrg || perm.ChangeOrganizationEconomy || perm.ChangeOrganizationInfo || perm.EditZamOrg)
+                        {
+                            @if (Model.organization.Status == "status_ok")
+                            {
+                                @if (isPrivillegue || perm.ChangeOrganizationEconomy)
+                                {
+                                    <a class="menu-url" href="@Url.Action("SendOrgToOrg", "Bank", new { id = Model.organization.Id })"><i class="fas fa-exchange"></i> Беспроцентный перевод</a>
+                                    <a class="menu-url" href="@Url.Action("OutMoneyOrganization", "Bank", new { id = Model.organization.Id })"><i class="fas fa-sign-out-alt"></i> Вывести деньги</a>
+                                }
+                                @if (isPrivillegue || perm.CreateItemOrg)
+                                {
+                                    <a class="menu-url" href="@Url.Action("CreateItem", "Bank", new { id = Model.organization.Id })"><i class="fas fa-plus"></i> Создать товар</a>
+                                }
+                                @if (isPrivillegue || perm.JobSettings)
+                                {
+                                    <a class="menu-url" href="@Url.Action("JobList", "Bank", new { id = Model.organization.Id })"><i class="fas fa-edit"></i> Список должностей</a>
+                                }
+                            }
+
+                            if (user.Id == Model.organization.AdminId || perm.EditZamOrg)
+                            {
+                                <a class="menu-url" href="@Url.Action("EditOrganizationZam", "Bank", new { id = Model.organization.Id })"><i class="fas fa-edit"></i> Изменить заместителей</a>
+                            }
+
+                            @if (user.Id == Model.organization.AdminId || perm.ChangeOrganizationEconomy || perm.ChangeOrganizationInfo)
+                            {
+                                <a class="menu-url" href="@Url.Action("EditOrganization", "Bank", new { id = Model.organization.Id })"><i class="fas fa-edit"></i> Изменить организацию</a>
+                            }
+                        }
+                        @if (perm.DeleteOrganization && string.IsNullOrEmpty(Model.organization.SpecialId))
+                        {
+                            <a class="menu-url" href="@Url.Action("DeleteOrganization", "Bank", new { id = Model.organization.Id })"><i class="fas fa-trash-alt"></i> Удалить организацию</a>
+                        }
+                    }
+                </div>
+            </div>
+            <div class="align-center money-block">
+                <p class="mega-money">@Model.organization.Balance.ToString("N0")</p>
+                <span class="mini-money">Мемларов</span>
+                @if (user != null)
+                {
+                    var job = await _BankServices.GetUserJob(user, new Organization { Id = Model.organization.Id });
+
+                    if (job != null)
+                    {
+                        var str = "";
+                        var i = 0;
+                        <div style="margin-top: 25px">
+                            @foreach (var j in job)
+                            {
+                                i++;
+
+                                str += j.Name;
+                                if (i != job.Count())
+                                {
+                                    str += ", ";
+                                }
+                            }
+
+                            <p>Ваши должности в организации: @str</p>
+                        </div>
+                    }
+
+                    @if (user != null)
+                    {
+                        if (user.Id == Model.organization.AdminId || perm.ChangeOrganizationEconomy)
+                        {
+                            <div style="margin-top: 25px">
+                                <p>Финансирование: @Model.organization.Influence.ToString("N0") Мемлар</p>
+                            </div>
+                        }
+                    }
+                }
+            </div>
+        </div>
+
+        <p>Последние товары:</p>
+
+        @if (Model.LastUserItems.Count > 0)
+        {
+            <div class="block-container posts-container" style="margin-bottom: 7px;">
+                @foreach (var lot in Model.LastUserItems)
+                {
+                    try
+                    {
+                        var org = Model.organization;
+
+                        var type = "";
+
+                        if (lot.RareType == 0)
+                        {
+                            type = "Обычная";
+                        }
+                        else if (lot.RareType == 1)
+                        {
+                            type = "Дорогая";
+                        }
+                        else if (lot.RareType == 2)
+                        {
+                            type = "Редкая";
+                        }
+                        else if (lot.RareType == 3)
+                        {
+                            type = "Эпическая";
+                        }
+                        else if (lot.RareType == 4)
+                        {
+                            type = "ЛЕГЕНДАРНАЯ";
+                        }
+
+                        var price = lot.Price;
+
+                        if (prem)
+                        {
+                            price = Convert.ToInt32(price * 0.9);
+                        }
+
+                        if (org == null)
+                        {
+
+                            if (isAdmin)
+                            {
+                                <div class="post-item no-padding block-item-rare-@lot.RareType" style="background: #dad8d8">
+                                    <a href="@Url.Action("SingleItem", "Bank", new { id = lot.Id })" class="post-item-name">
+                                        <div class="wpg-head">
+                                            <div class="wrapp-image-cut no-padding">
+                                                <img class="post-image" src="@lot.ImageUrl">
+                                            </div>
+
+                                            <span class="post-item-name post-item-name-url" href="@Url.Action("SingleItem", "Bank", new { id = lot.Id })">@lot.Name</span>
+                                        </div>
+
+                                    </a>
+                                    <div class="wpg-list-info-block">
+                                        <p class="post-item-text">@lot.Short_Desc</p>
+                                        <p class="post-item-date"><i class="fas fa-comment-alt-dollar"></i> Стоимость @price.ToString("N0") Мемлар</p>
+                                        <p class="post-item-date"><i class="fas fa-caret-square-right"></i> Редкость: <span class="text-rare-@lot.RareType">@type</span></p>
+                                        <p class="post-item-date">Добавил: УДАЛЕНО</p>
+                                        <p class="post-item-date">Осталось: @lot.Value Шт.</p>
+                                    </div>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+
+                            <div class="post-item no-padding block-item-rare-@lot.RareType" style="@((lot.Value == 0) ? "background: #dad8d8;" : "")">
+                                <a href="@Url.Action("SingleItem", "Bank", new { id = lot.Id })" class="post-item-name">
+                                    <div class="wpg-head">
+                                        <div class="wrapp-image-cut no-padding">
+                                            <img class="post-image" src="@lot.ImageUrl">
+                                        </div>
+
+                                        <span class="post-item-name post-item-name-url" href="@Url.Action("SingleItem", "Bank", new { id = lot.Id })">@lot.Name</span>
+                                    </div>
+
+                                </a>
+                                <div class="wpg-list-info-block">
+                                    <p class="post-item-text">@lot.Short_Desc</p>
+                                    <p class="post-item-date"><i class="fas fa-comment-alt-dollar"></i> Стоимость @price.ToString("N0") Мемлар</p>
+                                    <p class="post-item-date"><i class="fas fa-caret-square-right"></i> Редкость: <span class="text-rare-@lot.RareType">@type</span></p>
+                                    <p class="post-item-date">Добавил: @org.Name</p>
+                                    <p class="post-item-date">Осталось: @lot.Value Шт.</p>
+                                </div>
+                            </div>
+                        }
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+                }
+
+            </div>
+        }
+
+        @if (perm.ShowAllOrgOrUserTransaction)
+        {
+            <a class="menu-url" href="@Url.Action("GetAllOrgTransaction","Bank", new { id = Model.organization.Id })">Все транзакции</a>
+        }
+
+        <p>Последние 20 транзакций организации:</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <td>Дата</td>
+                    <td>Информация</td>
+                    <td>От кого \ кому</td>
+                    <td>Количество</td>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var trans in organization_tranz)
+                {
+                    try
+                    {
+                        if (trans.BankId1 == Model.organization.Id)
+                        {
+                            <tr style="background: #ff121229">
+                                <td>
+                                    @DateTimeTransform.ConvertDateTime(trans.Date)
+                                </td>
+                                <td>
+                                    @trans.Text
+                                </td>
+                                <td class="flex-table-fix">
+                                    @{
+                                        var come = await _BankServices.FindByIdAsync(trans.Id2);
+                                    }
+                                    @if (trans.Id2 <= 0)
+                                    {
+                                        <p>В другие организации</p>
+                                    }
+                                    else
+                                    {
+                                        <p>Организация вывела на счёт <a href="@Url.Action("Balance", "Bank", new { id = come.Id })">@Html.Raw(_BankServices.CompleteUserName(come))</a></p>
+                                    }
+                                </td>
+                                <td>
+                                    - @Html.Raw(IntTransform.ConvertInt(trans.Value)) Мемлар
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            <tr style="background: #12ff1229;">
+                                <td>
+                                    @DateTimeTransform.ConvertDateTime(trans.Date)
+                                </td>
+                                <td>
+                                    @trans.Text
+                                </td>
+                                <td class="flex-table-fix">
+                                    @{
+                                        var come = await _BankServices.FindByIdAsync(trans.Id1);
+                                    }
+                                    @if (trans.Id1 != -1)
+                                    {
+                                        <p>Взнос от <a href="@Url.Action("Balance", "Bank" , new { id = come.Id })">@Html.Raw(_BankServices.CompleteUserName(come))</a></p>
+                                    }
+                                    else
+                                    {
+                                        <p>От ТМЛ</p>
+                                    }
+                                </td>
+                                <td>
+                                    + @Html.Raw(IntTransform.ConvertInt(trans.Value)) Мемлар
+                                </td>
+                            </tr>
+                        }
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+

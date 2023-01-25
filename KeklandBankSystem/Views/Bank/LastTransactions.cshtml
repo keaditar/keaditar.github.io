@@ -1,0 +1,84 @@
+﻿@{
+    ViewData["Title"] = "ТМЛ | Последние транзакции";
+    Layout = "/Views/_Layout.cshtml";
+
+    var top = await _BankServices.GetTransactions(35);
+
+    var user = await _BankServices.GetUser();
+
+    var perm = await _BankServices.GetUserPermission(user);
+}
+
+<div class="box">
+    <p>Последние 35 транзакций:</p>
+    <table>
+        <thead>
+            <tr>
+                <td>Дата</td>
+                <td>Информация</td>
+                <td>От кого \ кому</td>
+                <td>Количество</td>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var trans in top)
+            {
+
+                <tr>
+                    <td>
+                        @DateTimeTransform.ConvertDateTime(trans.Date)
+                    </td>
+                    <td>
+                        @trans.Text
+                    </td>
+                    <td class="flex-table-fix">
+                        @{
+                            var come = await _BankServices.FindByIdAsync(trans.Id1);
+                            var income = await _BankServices.FindByIdAsync(trans.Id2);
+
+                            var str = "";
+                        }
+
+                        @if (trans.Id2 > 0)
+                        {
+                            str = "<a href=\"" + Url.Action("Balance", "Bank", new { id = income.Id }) + "\">" + _BankServices.CompleteUserName(income) + "</a>" + " получил от ";
+
+                        }
+                        else
+                        {
+                            if (trans.Id2 == -2)
+                            {
+                                str = "Взнос в депозит от ";
+                            }
+                            else
+                            {
+                                str = "Организация получила от ";
+                            }
+                        }
+
+                        @if (trans.Id1 > 0)
+                        {
+                            str += "<a href=\"" + Url.Action("Balance", "Bank", new { id = come.Id }) + "\">" + @Html.Raw(_BankServices.CompleteUserName(come)) + "</a>";
+                        }
+                        else
+                        {
+                            str += "ТМЛ";
+                        }
+
+                        <p>@Html.Raw(str)</p>
+                    </td>
+                    <td>
+                        @Html.Raw(IntTransform.ConvertInt(trans.Value)) Мемлар
+
+                        @if(perm.DeleteTransaction)
+                        {
+                        <a class="deletebutton" href="@Url.Action("DeleteTransaction", "Bank", new { transId = trans.Id })">X</a>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+

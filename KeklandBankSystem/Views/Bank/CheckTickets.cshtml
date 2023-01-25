@@ -1,0 +1,112 @@
+﻿@model CheckTicketModel
+@{
+    ViewData["Title"] = "ТМЛ | Проверка прошения";
+    Layout = "/Views/_Layout.cshtml";
+
+    var count = _BankServices.GetCountTicket();
+}
+
+<div class="box">
+    @if (Model.ticket != null)
+    {
+        <div class="block-container name-container c-white">
+            <h1 class="c-title text-normal">Прошение от <a href="@Url.Action("Balance", "Bank", new { id = Model.ticket.UserId })" target="_blank">@Model.user.Name</a> ( Ещё @(count - 1) )</h1>
+            <span>
+                <a href="@(Url.Action("MyTickets", "Bank", new { id = Model.ticket.UserId}))" target="_blank">Транзакции пользователя</a>
+            </span>
+        </div>
+
+        <div class="block-container ucp-validation-error ucp-log-container" asp-validation-summary="ModelOnly"></div>
+
+        <p class="text-marg">
+            <div class="box image-max">
+                @if (Model.ImagesUrl is {Count: > 0 })
+                {
+                    foreach (var s in Model.ImagesUrl)
+                    {
+                        <img src="@s" />
+                    }
+                }
+                <div>
+                     Сообщение: @Html.Raw(Model.ticket.Text)
+                     <span class="money-trans">
+                         Количество: @Model.ticket.Value
+                     </span>
+                 </div>
+            </div>
+        </p>
+
+        <div class="block-container ucp-info-block no-padding ucp-reg-inf-block">
+            <div>
+                <form asp-action="CheckTickets" asp-controller="Bank" asp-anti-forgery="true">
+                    <div>
+                        <div class="ucp-reg-input-div">
+                            <div class="ucp-row-label">
+                                <label asp-for="NewValue">Новое значение ( оставте пустым что бы оставить старое )</label>
+                                <i class="req">*</i>
+                            </div>
+                            <div class="ucp-row-input">
+                                <input type="text" asp-for="NewValue" />
+                                <span asp-validation-for="NewValue" />
+                            </div>
+                        </div>
+
+                        @Html.HiddenFor(m => m.ticket.Id)
+
+                        <div class="ucp-reg-input-div">
+                            <div class="ucp-row-label">
+                                <label asp-for="NewStatus">Новый статус</label>
+                                <i class="req">*</i>
+                            </div>
+                            <div class="ucp-row-input">
+                                @foreach (var status in Model.NewStatuses)
+                                {
+                                    <input type="radio" asp-for="NewStatus" value="@status" />@status<br />
+                                }
+                            </div>
+                        </div>
+
+                        <div class="ucp-reg-input-div">
+                            <div class="ucp-row-label">
+                                <label asp-for="OutBank">Деньги из организации?</label>
+                                <i class="req">*</i>
+                            </div>
+                            <div class="ucp-row-input">
+                                <input type="checkbox" asp-for="OutBank" />
+                            </div>
+                        </div>
+
+                        <div class="ucp-reg-input-div">
+                            <div class="ucp-row-label">
+                                <label asp-for="AdminComment">Комментарий</label>
+                            </div>
+                            <div class="ucp-row-input">
+                                <input type="text" asp-for="AdminComment" />
+                                <span asp-validation-for="AdminComment" />
+                            </div>
+                        </div>
+
+                        <div class="ucp-reg-input-div">
+                            <div class="ucp-row-label">
+
+                            </div>
+                            <div class="ucp-row-input align-center">
+                                <button class="button reg-button button-succ" type="submit">Сохранить</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    }
+    else
+    {
+        <p>На сегодня прошения закончены, милорд!</p>
+        <a href="@Url.Action("Index","Bank")">На главную</a>
+    }
+</div>
+
+@section scripts{
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.14.0/jquery.validate.min.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validation.unobtrusive/3.2.6/jquery.validate.unobtrusive.min.js"></script>
+}

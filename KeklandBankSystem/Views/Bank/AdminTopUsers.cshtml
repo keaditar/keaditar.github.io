@@ -1,0 +1,37 @@
+﻿
+@{
+    ViewData["Title"] = "ТМЛ | Админ-список";
+    Layout = "/Views/_Layout.cshtml";
+
+    var top = await _BankServices.GetAllUser();
+}
+
+<div class="box">
+    <table>
+        <thead>
+            <tr>
+                <td>Ник</td>
+                <td>Вк</td>
+                <td>Id</td>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var trans in top.OrderBy(m => m.Name))
+            {
+                    <tr>
+                        <td>
+                            <a href="@Url.Action("Balance", "Bank" , new { id = trans.Id })">@Html.Raw(_BankServices.CompleteUserName(trans))</a>
+                        </td>
+                        <td>
+                            @("https://vk.com/id" + trans.VKUniqId)
+                        </td>
+                        <td>
+                            @trans.Id
+                        </td>
+                    </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+

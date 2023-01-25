@@ -1,0 +1,84 @@
+﻿@model TransferOutOrganizationModel
+@{
+    ViewData["Title"] = "ТМЛ | Снятие денег со счёта организации";
+    Layout = "/Views/_Layout.cshtml";
+
+    ViewData["IsOrg"] = true;
+
+    var stavka = await _BankServices.GetStavka();
+
+    
+    var org = await _BankServices.GetOrganizations(Model.orgId);
+}
+
+<div class="box">
+    <div class="block-container name-container c-white">
+        <h1 class="c-title text-normal">Взять из счёта организации @org.Name</h1>
+    </div>
+    <div class="block-container ucp-valid-info ucp-log-container">
+        <ul>
+            <li>Налоговая ставка = @(stavka)%.</li>
+            <li>Минимальное колиечество Мемларов - @(stavka).</li>
+            <li>При переводе меньше 100 Мемларов взымается @(stavka) Мемлара.</li>
+        </ul>
+    </div>
+
+    <div class="block-container ucp-validation-error ucp-log-container" asp-validation-summary="ModelOnly"></div>
+
+    <div class="block-container ucp-info-block no-padding ucp-reg-inf-block">
+        <div>
+            <form asp-action="OutMoneyOrganization" asp-controller="Bank" asp-anti-forgery="true">
+                <div>
+                    <input type="hidden" name="orgId" value="@org.Id" id="orgId" />
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="NameTo">Никнейм, кому отправляете</label>
+                            <i class="req">*</i>
+                        </div>
+                        <div class="ucp-row-input">
+                            <input type="text" asp-for="NameTo" />
+                            <span asp-validation-for="NameTo" />
+                        </div>
+                    </div>
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="Comment">Комментарий</label>
+                        </div>
+                        <div class="ucp-row-input">
+                            <input type="text" asp-for="Comment" />
+                            <span asp-validation-for="Comment" />
+                        </div>
+                    </div>
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="Value">Количество</label>
+                            <i class="req">*</i>
+                        </div>
+                        <div class="ucp-row-input">
+                            <input type="number" asp-for="Value" class="input-check" />
+                            <span asp-validation-for="Value" />
+                        </div>
+                    </div>
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+
+                        </div>
+                        <div class="ucp-row-input align-center">
+                            <div class="transfer-classis">
+                                C учётом налога будет взято: <span class="money-changing">0</span> Мемларов
+                            </div>
+                            <button class="button reg-button button-succ" type="submit">Вывести</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script src="~/js/transfer.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.14.0/jquery.validate.min.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validation.unobtrusive/3.2.6/jquery.validate.unobtrusive.min.js"></script>
+}
+

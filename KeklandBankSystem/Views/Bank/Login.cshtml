@@ -1,0 +1,77 @@
+﻿@model LoginModel
+@{
+    ViewData["Title"] = "ТМЛ | Вход";
+    Layout = "/Views/_Layout.cshtml";
+}
+
+<div class="box">
+    <div class="block-container name-container c-white">
+        <h1 class="c-title text-normal">Вход</h1>
+    </div>
+
+    <div class="block-container ucp-validation-error ucp-log-container" asp-validation-summary="ModelOnly"></div>
+
+    <div class="block-container ucp-info-block no-padding ucp-reg-inf-block">
+        <div>
+            <form asp-action="Login" asp-controller="Bank" asp-anti-forgery="true">
+                <div>
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="Name">Имя</label>
+                            <i class="req">*</i>
+                        </div>
+                        <div class="ucp-row-input">
+                            <input type="text" asp-for="Name" />
+                            <span asp-validation-for="Name" />
+                        </div>
+                    </div>
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="Password">Пароль</label>
+                            <i class="req">*</i>
+                        </div>
+                        <div class="ucp-row-input">
+                            <input type="text" asp-for="Password" />
+                            <span asp-validation-for="Password" />
+                        </div>
+                    </div>
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+
+                        </div>
+                        <div class="ucp-row-input align-center">
+                            <button class="button reg-button button-succ" type="submit">Войти</button>
+                        </div>
+                    </div>
+
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label>Через ВК</label>
+                            <i class="req">*</i>
+                        </div>
+                        <div class="ucp-row-input">
+                            <div style="width: 200px;height: 134px;margin: 10px auto;">
+                                <div id="vk_auth"></div>
+                            </div>
+                            <script type="text/javascript">
+            VK.Widgets.Auth("vk_auth", { "onAuth": function (data) { document.location.href = '@Url.Action("RegisterVK", "Bank")' + '?uid=' + data.uid + '&fn=' + data.first_name + '&ln=' + data.last_name + '&photo=' + data.photo + '&photo_rec=' + data.photo_rec + '&hash=' + data.hash } });
+                            </script>
+                            <p class="go-to-log">Не зарегистрированы? <a asp-action="Register" asp-controller="Bank">Регистрация</a></p>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.14.0/jquery.validate.min.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validation.unobtrusive/3.2.6/jquery.validate.unobtrusive.min.js"></script>
+
+    <script type="text/javascript">
+        VK.init({
+            apiId: 7779454
+        });
+    </script>
+}

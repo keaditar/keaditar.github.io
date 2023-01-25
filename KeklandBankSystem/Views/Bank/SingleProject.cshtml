@@ -1,0 +1,85 @@
+﻿@model Project
+@{
+    ViewData["Title"] = "ТМЛ | Проект '" + Model.Name + "'";
+    Layout = "/Views/_Layout.cshtml";
+
+    var author = await _BankServices.FindByIdAsync(Model.AuthorId);
+    var user = await _BankServices.GetUser();
+
+    var senders = await _BankServices.GetProjectSenders(Model.Id);
+}
+
+<div class="box">
+    <div style="display: flex;grid-gap: 15px;min-height: 250px;align-items: center;">
+        <div style="display: flex;grid-gap: 15px;">
+            <div class="ucp-image-wrapp">
+                <img class="ucp-image" src="@Model.ImageUrl" />
+                <div class="align-center">
+                    <p class="admin-org">Создатель проекта: @Html.Raw(_BankServices.CompleteUserName(author))</p>
+                </div>
+            </div>
+            <div class="org-info-block">
+                <p class="name-org">@Model.Name</p>
+                <p>@Model.Info</p>
+            </div>
+        </div>
+        <div class="align-center money-block">
+            <p class="mega-money">@Model.Balance.ToString("N0") / @Model.Target.ToString("N0")</p>
+            <span class="mini-money">Мемларов</span>
+        </div>
+
+        <div class="progress-bar-outer">
+            <div class="progress-bar-inner" style="width: @((Model.Balance * 100) / Model.Target)%;">
+                <span>@((Model.Balance * 100) / Model.Target)%</span>
+            </div>
+        </div>
+
+        <div class="align-center" style="margin-top: 20px;">
+            @if (user != null)
+            {
+                @if (Model.Target > Model.Balance)
+                {
+                    <a href="@Url.Action("SendMoneyProject", "Bank", new { id = Model.Id })" class="button reg-button button-succ">Сделать взнос</a>
+                }
+                else
+                {
+                    <span>Сбор завершён</span>
+                }
+            }
+        </div>
+    </div>
+    <div style="margin-top:30px;">
+    
+        <p>Последние 20 вложений в проект:</p>
+    
+        <table>
+            <thead>
+                <tr>
+                    <td>Дата</td>
+                    <td>От кого</td>
+                    <td>Количество</td>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var trans in senders.Take(20))
+                {
+                    <tr>
+                        <td>
+                            @DateTimeTransform.ConvertDateTime(trans.Date)
+                        </td>
+                        <td>
+                            @{
+                                var sender = await _BankServices.FindByIdAsync(trans.UserId);
+                            }
+                            @sender.Name
+                        </td>
+                        <td>
+                            @trans.Money.ToString("N0") Мемлар
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+

@@ -1,0 +1,165 @@
+﻿@model AdminEntityGovermentTicket
+@{
+    ViewData["Title"] = "ТМЛ | Проверка государств";
+    Layout = "/Views/_Layout.cshtml";
+
+    var count = (await _BankServices.GetAllGovermentEntity()).Count;
+}
+
+    <div class="box">
+        @if (Model != null)
+        {
+            <div class="block-container name-container c-white">
+                <h1 class="c-title text-normal">Государства '@Model.Name' ( Ещё @(count - 1) )</h1>
+            </div>
+
+            <div class="block-container ucp-validation-error ucp-log-container" asp-validation-summary="ModelOnly"></div>
+
+            <p style="margin-top:15px;">Последние 10 регистраций пользователя:</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <td>Дата</td>
+                        <td>Текст</td>
+                        <td>Комментарий админа</td>
+                        <td>Решение</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var ticket in Model.lastTickets)
+                    {
+
+                        <tr>
+                            <td>
+                                @DateTimeTransform.ConvertDateTime(ticket.Date)
+                            </td>
+                            <td>
+                                @ticket.Text
+                            </td>
+                            <td>
+                                @ticket.AdminInformation
+                            </td>
+                            <td>
+                                @if (ticket.Status == "status_ok")
+                                {
+                                    <span class="accepted-tick">Принято</span>
+                                }
+                                else if (ticket.Status == "status_declaim")
+                                {
+                                    <span class="declaim-tick">Отказано</span>
+                                }
+                                else
+                                {
+                                    <span class="timing-tick">На рассмотрении</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <p class="text-marg">
+                <div class="box image-max">
+                    <img src="@Model.imageFlag" />
+                </div>
+                <div class="box image-max">
+                    <img src="@Model.imageBG" />
+                </div>
+            </p>
+
+            <div class="block-container ucp-info-block no-padding ucp-reg-inf-block">
+                <div>
+                    <form asp-action="CheckEntityGoverment" asp-controller="Bank" asp-anti-forgery="true">
+                        @Html.HiddenFor(m => m.AuthorId)
+                        @Html.HiddenFor(m => m.GovId)
+                        @Html.HiddenFor(m => m.imageFlag)
+                        @Html.HiddenFor(m => m.imageBG)
+                        <div>
+                            <div class="ucp-reg-input-div">
+                                <div class="ucp-row-label">
+                                    <label>Подтвердить?</label>
+                                    <i class="req">*</i>
+                                </div>
+                                <div class="ucp-row-input">
+                                    @Html.CheckBoxFor(m => m.isOk)
+                                </div>
+                            </div>
+                            <div class="ucp-reg-input-div">
+                                <div class="ucp-row-label">
+                                    <label asp-for="Name">Название государства</label>
+                                    <i class="req">*</i>
+                                </div>
+                                <div class="ucp-row-input">
+                                    <input type="text" asp-for="Name" />
+                                    <span asp-validation-for="Name" />
+                                </div>
+                            </div>
+                            <div class="ucp-reg-input-div">
+                                <div class="ucp-row-label">
+                                    <label asp-for="Information">Информация</label>
+                                    <i class="req">*</i>
+                                </div>
+                                <div class="ucp-row-input">
+                                    <input type="text" asp-for="Information" />
+                                    <span asp-validation-for="Information" />
+                                </div>
+                            </div>
+
+                            <div class="ucp-reg-input-div">
+                                <div class="ucp-row-label">
+                                    <label asp-for="VKUrl">Ссылка на вк</label>
+                                    <i class="req">*</i>
+                                </div>
+                                <div class="ucp-row-input">
+                                    <input type="text" asp-for="VKUrl" />
+                                    <span asp-validation-for="VKUrl" />
+                                </div>
+                            </div>
+
+                            <div class="ucp-reg-input-div">
+                                <div class="ucp-row-label">
+                                    <label asp-for="Budget">Бюджет</label>
+                                    <i class="req">*</i>
+                                </div>
+                                <div class="ucp-row-input">
+                                    <input type="number" asp-for="Budget" />
+                                    <span asp-validation-for="Budget" />
+                                </div>
+                            </div>
+
+                            <div class="ucp-reg-input-div">
+                                <div class="ucp-row-label">
+                                    <label asp-for="AdminInformation">Админ-информация</label>
+                                    <i class="req">*</i>
+                                </div>
+                                <div class="ucp-row-input">
+                                    <input type="text" asp-for="AdminInformation" />
+                                    <span asp-validation-for="AdminInformation" />
+                                </div>
+                            </div>
+
+                            <div class="ucp-reg-input-div">
+                                <div class="ucp-row-label">
+
+                                </div>
+                                <div class="ucp-row-input align-center">
+                                    <button class="button reg-button button-succ" type="submit">Сохранить</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        }
+        else
+        {
+            <p>На сегодня государства закончены, милорд!</p>
+            <a href="@Url.Action("Index","Bank")">На главную</a>
+        }
+    </div>
+
+@section scripts{
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.14.0/jquery.validate.min.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validation.unobtrusive/3.2.6/jquery.validate.unobtrusive.min.js"></script>
+}

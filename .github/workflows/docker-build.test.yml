@@ -1,0 +1,22 @@
+name: Deploy TML Classic Web Host
+
+on:
+  push:
+    branches: [prod]
+
+jobs:
+  publis-service-resolver:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Send sync-script to remote host 
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          script: |
+            bash <(curl -s https://raw.githubusercontent.com/rival-politics/rival-politic/main/service-hub/tml-classic/tml-classic-registry.sh)

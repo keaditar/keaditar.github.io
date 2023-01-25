@@ -1,0 +1,50 @@
+﻿@model CodeModeActive
+@{
+    ViewData["Title"] = "ТМЛ | Активация промо-кодов";
+    Layout = "/Views/_Layout.cshtml";
+}
+
+    <div class="box">
+        <div class="block-container name-container c-white">
+            <h1 class="c-title text-normal">Активация промо-кодов</h1>
+        </div>
+
+        <div class="block-container ucp-validation-error ucp-log-container" asp-validation-summary="ModelOnly"></div>
+
+        <p class="promo-message">
+            @Model.Message
+        </p>
+
+        <div class="block-container ucp-info-block no-padding ucp-reg-inf-block">
+            <div>
+                <form asp-action="ActiveCode" asp-controller="Bank" asp-anti-forgery="true">
+                    <div>
+                        <div class="ucp-reg-input-div">
+                            <div class="ucp-row-label">
+                                <label asp-for="@Model.Code">Промо-код</label>
+                                <i class="req">*</i>
+                            </div>
+                            <div class="ucp-row-input">
+                                <input type="text" asp-for="@Model.Code" maxlength="20" />
+                            </div>
+                        </div>
+
+                        <div class="ucp-reg-input-div">
+                            <div class="ucp-row-label">
+
+                            </div>
+                            <div class="ucp-row-input align-center">
+                                <button class="button reg-button button-succ" type="submit">Активировать</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+@section scripts{
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.14.0/jquery.validate.min.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validation.unobtrusive/3.2.6/jquery.validate.unobtrusive.min.js"></script>
+}
+

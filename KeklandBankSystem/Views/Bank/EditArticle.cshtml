@@ -1,0 +1,73 @@
+﻿@model ArticlesModel
+@{
+    ViewData["Title"] = "ТМЛ | Обновление артикля";
+    Layout = "/Views/_Layout.cshtml";
+    ViewData["IsOrg"] = true;
+}
+
+<div class="box">
+    <div class="block-container name-container c-white">
+        <h1 class="c-title text-normal">Обновление артикля</h1>
+    </div>
+
+    <div class="block-container ucp-validation-error ucp-log-container" asp-validation-summary="ModelOnly"></div>
+
+    <div class="block-container ucp-info-block no-padding ucp-reg-inf-block">
+        <div>
+            <form asp-action="EditArticle" asp-controller="Bank" asp-anti-forgery="true" enctype="multipart/form-data">
+                <div>
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="MiniText">Маленький текст</label>
+                            <i class="req">*</i>
+                        </div>
+                        <div class="ucp-row-input">
+                            <input type="text" asp-for="MiniText" />
+                            <span asp-validation-for="MiniText" />
+                        </div>
+                    </div>
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="HtmlText">Полный текст</label>
+                            <i class="req">*</i>
+                        </div>
+                        <div class="ucp-row-input">
+                            <textarea type="text" id="editor1" asp-for="HtmlText"></textarea>
+                            <span asp-validation-for="HtmlText" />
+                            <script>
+                                CKEDITOR.replace('editor1');
+                            </script>
+                        </div>
+                    </div>
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="ImageUrl">Картинка</label>
+                        </div>
+                        <div class="ucp-row-input image-row-input">
+                            <label class="image-button" for="ImageUrl">
+                                <span class="text-image-s"><i class="fas fa-upload"></i> <span class="js-imageTexter">Загрузить картинку</span></span>
+                            </label>
+
+                            <input type="file" name="ImageUrl" id="ImageUrl" class="image-inp" onchange="prepareImageUpload(this);">
+                            <label>Или</label><input type="text" asp-for="ImageUrlString">
+                        </div>
+                    </div>
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+
+                        </div>
+                        <div class="ucp-row-input align-center">
+                            <button class="button reg-button button-succ" type="submit">Обновить</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script src="~/ckeditor/ckeditor.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.14.0/jquery.validate.min.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validation.unobtrusive/3.2.6/jquery.validate.unobtrusive.min.js"></script>
+}

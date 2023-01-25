@@ -1,0 +1,63 @@
+﻿@model SetOrganizationZamModel
+@{
+    ViewData["Title"] = "ТМЛ | Заместители";
+    Layout = "/Views/_Layout.cshtml";
+
+    ViewData["IsOrg"] = true;
+
+    var org = await _BankServices.GetOrganizations(Model.Id);
+}
+
+<div class="box">
+    <div class="block-container name-container c-white">
+        <h1 class="c-title text-normal">Замена замов в '@org.Name'</h1>
+    </div>
+
+    <div class="block-container ucp-validation-error ucp-log-container" asp-validation-summary="ModelOnly"></div>
+
+    <div class="block-container ucp-info-block no-padding ucp-reg-inf-block">
+        <div>
+            <form asp-action="EditOrganizationZam" asp-controller="Bank" asp-anti-forgery="true">
+                <div>
+                    <input type="hidden" name="orgId" value="@org.Id" id="orgId" />
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="Zam1">Никнейм первого зама</label>
+                            <i class="req">*</i>
+                        </div>
+                        <div class="ucp-row-input">
+                            <input type="text" asp-for="Zam1" />
+                            <span asp-validation-for="Zam1" />
+                        </div>
+                    </div>
+
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="Zam2">Никнейм второго зама</label>
+                            <i class="req">*</i>
+                        </div>
+                        <div class="ucp-row-input">
+                            <input type="text" asp-for="Zam2" />
+                            <span asp-validation-for="Zam2" />
+                        </div>
+                    </div>
+
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+
+                        </div>
+                        <div class="ucp-row-input align-center">
+                            <button class="button reg-button button-succ" type="submit">Сохранить</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.14.0/jquery.validate.min.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validation.unobtrusive/3.2.6/jquery.validate.unobtrusive.min.js"></script>
+}
+

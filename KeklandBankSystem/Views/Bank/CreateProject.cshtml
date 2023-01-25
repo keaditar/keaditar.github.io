@@ -1,0 +1,94 @@
+﻿@model CreateProejcttModel
+@{
+    ViewData["Title"] = "ТМЛ | Создание проекта";
+    Layout = "/Views/_Layout.cshtml";
+    ViewData["IsOrg"] = true;
+}
+
+<div class="box">
+    <div class="block-container name-container c-white">
+        <h1 class="c-title text-normal">Создание проекта</h1>
+    </div>
+
+    <div class="block-container ucp-validation-error ucp-log-container" asp-validation-summary="ModelOnly"></div>
+
+    <div class="block-container ucp-info-block no-padding ucp-reg-inf-block">
+        <div>
+            <form asp-action="CreateProject" asp-controller="Bank" asp-anti-forgery="true" enctype="multipart/form-data">
+                <div>
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="Name">Имя Проекта</label>
+                            <i class="req">*</i>
+                        </div>
+                        <div class="ucp-row-input">
+                            <input type="text" asp-for="Name" />
+                            <span asp-validation-for="Name" />
+                        </div>
+                    </div>
+
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="AuthorName">Имя автора</label>
+                            <i class="req">*</i>
+                        </div>
+                        <div class="ucp-row-input">
+                            <input type="text" asp-for="AuthorName" />
+                            <span asp-validation-for="AuthorName" />
+                        </div>
+                    </div>
+
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="ImageUrl">Картинка</label>
+                        </div>
+                        <div class="ucp-row-input image-row-input">
+                            <label class="image-button" for="ImageUrl">
+                                <span class="text-image-s"><i class="fas fa-upload"></i> <span class="js-imageTexter">Загрузить картинку</span></span>
+                            </label>
+
+                            <input type="file" name="ImageUrl" id="ImageUrl" class="image-inp" onchange="prepareImageUpload(this);">
+                            <label>Или</label><input type="text" asp-for="ImageStringUrl">
+                        </div>
+                    </div>
+
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="Info">Краткая информация</label>
+                            <i class="req">*</i>
+                        </div>
+                        <div class="ucp-row-input">
+                            <textarea type="text" asp-for="Info"></textarea>
+                            <span asp-validation-for="Info" />
+                        </div>
+                    </div>
+
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="Target">Цель проекта ( Мемлар )</label>
+                            <i class="req">*</i>
+                        </div>
+                        <div class="ucp-row-input">
+                            <input type="number" asp-for="Target" />
+                            <span asp-validation-for="Target" />
+                        </div>
+                    </div>
+
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+
+                        </div>
+                        <div class="ucp-row-input align-center">
+                            <button class="button reg-button button-succ" type="submit">Создать</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.14.0/jquery.validate.min.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validation.unobtrusive/3.2.6/jquery.validate.unobtrusive.min.js"></script>
+}

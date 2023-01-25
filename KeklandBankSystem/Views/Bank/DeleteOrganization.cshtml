@@ -1,0 +1,20 @@
+﻿@model Organization
+@{
+    ViewData["Title"] = "ТМЛ | Удаление организации";
+    Layout = "/Views/_Layout.cshtml";
+    ViewData["IsOrg"] = true;
+}
+
+<div class="box">
+    <div class="align-center money-block">
+        <p class="mega-money reg-codes"></p>
+    </div>
+    <form action="@Url.Action("DeleteOrganization","Bank")" method="post">
+        <div class="ucp-row-input align-center">
+            @Html.HiddenFor(m => m.Id)
+            <p>Вы точно хотите удалить организацию '@Model.Name'?</p>
+            <button class="button reg-button button-danger" type="submit">Удалить</button>
+        </div>
+    </form>
+</div>
+

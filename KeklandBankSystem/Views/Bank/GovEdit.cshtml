@@ -1,0 +1,162 @@
+﻿@model SystemMain
+@{
+    ViewData["Title"] = "ТМЛ | Панель президента";
+    Layout = "/Views/_Layout.cshtml";
+
+    var user = await _BankServices.GetUser();
+}
+
+<div class="box">
+    <div class="block-container name-container c-white">
+        <h1 class="c-title text-normal">Панель президента</h1>
+    </div>
+
+    <div class="block-container ucp-validation-error ucp-log-container" asp-validation-summary="ModelOnly"></div>
+
+    <div class="block-container ucp-info-block no-padding ucp-reg-inf-block">
+        <div>
+            <form asp-action="GovEdit" asp-controller="Bank" asp-anti-forgery="true">
+                <div>
+
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="PresidentName">Имя президента**</label>
+                            <i class="req">*</i>
+                        </div>
+                        <div class="ucp-row-input">
+                            <input type="text" asp-for="PresidentName" />
+                            <span asp-validation-for="PresidentName" />
+                        </div>
+                    </div>
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="Stavka">Налог на передачу денег</label>
+                            <i class="req">*</i>
+                        </div>
+                        <div class="ucp-row-input">
+                            <input type="text" asp-for="Stavka" />
+                            <span asp-validation-for="Stavka" />
+                        </div>
+                    </div>
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="Stavka_Nalog">Подоходный налог ( каждые 5 дней )</label>
+                            <i class="req">*</i>
+                        </div>
+                        <div class="ucp-row-input">
+                            <input type="text" asp-for="Stavka_Nalog" />
+                            <span asp-validation-for="Stavka_Nalog" />
+                        </div>
+                    </div>
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="Stavka_Vlojen">Депозитный процент</label>
+                            <i class="req">*</i>
+                        </div>
+                        <div class="ucp-row-input">
+                            <input type="text" asp-for="Stavka_Vlojen" />
+                            <span asp-validation-for="Stavka_Vlojen" />
+                        </div>
+                    </div>
+
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="Nalog_Item">Процент с продаж товаров</label>
+                            <i class="req">*</i>
+                        </div>
+                        <div class="ucp-row-input">
+                            <input type="text" asp-for="Nalog_Item" />
+                            <span asp-validation-for="Nalog_Item" />
+                        </div>
+                    </div>
+
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="MoneyFromLike">Мемларов за лайк</label>
+                            <i class="req">*</i>
+                        </div>
+                        <div class="ucp-row-input">
+                            <input type="number" asp-for="MoneyFromLike" />
+                            <span asp-validation-for="MoneyFromLike" />
+                        </div>
+                    </div>
+
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="Nalog_Project">Процент взятия денег с успешного проекта ( до 100 )</label>
+                            <i class="req">*</i>
+                        </div>
+                        <div class="ucp-row-input">
+                            <input type="number" asp-for="Nalog_Project" />
+                            <span asp-validation-for="Nalog_Project" />
+                        </div>
+                    </div>
+
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="UserGetMoneyProject">Процент получением автора проекта ( до 100 )</label>
+                            <i class="req">*</i>
+                        </div>
+                        <div class="ucp-row-input">
+                            <input type="number" asp-for="UserGetMoneyProject" />
+                            <span asp-validation-for="UserGetMoneyProject" />
+                        </div>
+                    </div>
+
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="Skrutka">Скрутка в казино ( от 1 до 35 )</label>
+                            <i class="req">*</i>
+                        </div>
+                        <div class="ucp-row-input">
+                            <input type="number" asp-for="Skrutka" />
+                            <span asp-validation-for="Skrutka" />
+                        </div>
+                    </div>
+
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="UserGetMoneyProject">Включен ли сайт?</label>
+                            <i class="req">*</i>
+                        </div>
+                        <div class="ucp-row-input">
+                            @Html.CheckBoxFor(m => m.SiteIsOn)
+                            <span asp-validation-for="UserGetMoneyProject" />
+                        </div>
+                    </div>
+
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label>Включено ли казино?</label>
+                            <i class="req">*</i>
+                        </div>
+                        <div class="ucp-row-input">
+                            @Html.CheckBoxFor(m => m.CasinoIsOn)
+                        </div>
+                    </div>
+
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label>Включены ли кейсы?</label>
+                            <i class="req">*</i>
+                        </div>
+                        <div class="ucp-row-input">
+                            @Html.CheckBoxFor(m => m.CasesIsOn)
+                        </div>
+                    </div>
+
+                    @Html.HiddenFor(m => m.Key)
+
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+
+                        </div>
+                        <div class="ucp-row-input align-center">
+                            <button class="button reg-button button-succ" type="submit">Издать указ</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

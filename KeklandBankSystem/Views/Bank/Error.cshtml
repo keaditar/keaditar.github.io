@@ -1,0 +1,127 @@
+﻿@model ErrorModel
+@{
+    ViewData["Title"] = "ТМЛ | Ошибка";
+    Layout = "/Views/_Layout.cshtml";
+
+    var user = await _BankServices.GetUser();
+}
+
+<div class="box">
+    <div class="align-center">
+        @Html.HiddenFor(m => m.ErrorCode)
+
+        @if (Model.ErrorCode == 700)
+        {
+            <p class="error-title">Ошибка @Model.ErrorCode</p>
+            <p class="error-text">Доступ заблокирован на данную страницу, убедитесь в том, что вы имеете право заходить.</p>
+        }
+        else if (Model.ErrorCode == 1200)
+        {
+            if (user != null)
+            {
+                ViewData["ErrorCode"] = 1200;
+
+                <p class="error-title">Уважаемый клиент банка!</p>
+                <p style="margin: 0 auto;width: calc(100% - 300px);" class="error-text">Ваши счета аррестованы <strong>Торговой Мемной Лигой</strong>. Ваша дальнейшая судьба решиться на суде <strong>ТМЛ</strong>. Причину заморозки вашего счёта можно узнать в группе или у администратора. Деньги на счету: <strong>@(user.Money.ToString("N0"))</strong> Мемлар.</p>
+
+            }
+        }
+        else if (Model.ErrorCode == 1900)
+        {
+            ViewData["ErrorCode"] = 1900;
+
+            <p class="error-title">Уважаемый клиент банка!</p>
+            <p style="margin: 0 auto;width: calc(100% - 300px);" class="error-text">На сайте активировано тестирование, <a href="@Url.Action("Login", "Bank")">войдите</a> в аккаунт если вы тестер.</p>
+        }
+        else if (Model.ErrorCode == 1500)
+        {
+            <script type="text/javascript">
+                VK.init({
+                    apiId: 7779454
+                });
+            </script>
+
+            <p class="error-title">Уважаемый клиент банка!</p>
+            <p style="margin: 0 auto;width: calc(100% - 300px);" class="error-text">В связи с обновлениями банка, мы переходим на новую систему регистрации. Вы обязаны привязать свой аккаунт ВК к банку.</p>
+
+            <div class="block-container ucp-validation-error ucp-log-container" asp-validation-summary="ModelOnly"></div>
+
+            <div class="ucp-reg-input-div">
+                <div class="ucp-row-label">
+                    <label>Обновить регистрацию</label>
+                    <i class="req">*</i>
+                </div>
+                <div class="ucp-row-input">
+                    <div style="width: 200px;height: 134px;margin: 10px auto;">
+                        <div id="vk_auth"></div>
+                    </div>
+                    <script type="text/javascript">
+                        VK.Widgets.Auth("vk_auth", { "onAuth": function (data) { document.location.href = '@Url.Action("EditUrlVkNew", "Bank")' + '?uid=' + data.uid  + '&hash=' + data.hash } });
+                    </script>
+                </div>
+            </div>
+        }
+        else if (Model.ErrorCode == 1201)
+        {
+            ViewData["ErrorCode"] = 1200;
+
+            <p class="error-title">Уважаемый клиент банка!</p>
+            <p style="margin: 0 auto;width: calc(100% - 300px);" class="error-text">В данный момент сайт неактивен.</p>
+        }
+        else
+        {
+
+            @if (Model.ErrorCode is >= 100 and <= 199)
+            {
+                <p class="error-title">Непопулярная ошибка @Model.ErrorCode</p>
+                <p class="error-text">Протокол сервера устарел либо превышен лимит ожидания. Обратитесь к администратору.</p>
+            }
+
+            @if (Model.ErrorCode is >= 200 and <= 299)
+            {
+                <p class="error-title">Успешный запрос сервера номер @Model.ErrorCode</p>
+                <p class="error-text">Сервер успешно обработал запрос без ошибок, но по какой-то причине не может вывести его.</p>
+            }
+
+            @if (Model.ErrorCode is >= 300 and <= 399)
+            {
+                <p class="error-title">Непопулярная ошибка @Model.ErrorCode</p>
+                <p class="error-text">Внутреняя ошибка моста "клиент-сервер".</p>
+            }
+
+            @if (Model.ErrorCode is >= 400 and <= 499)
+            {
+                if (Model.ErrorCode == 404)
+                {
+                    <p class="error-title">Ошибка клиента @Model.ErrorCode</p>
+                    <p class="error-text">Запрашеваемая страница не найдена.</p>
+                }
+                else
+                {
+                    <p class="error-title">Ошибка клиента @Model.ErrorCode</p>
+                    <p class="error-text">Ошибка в клиенте, попробуйте погуглить номер ошибки.</p>
+                }
+            }
+
+            @if (Model.ErrorCode is >= 500 and <= 599)
+            {
+                <p class="error-title">Ошибка сервера @Model.ErrorCode</p>
+                <p class="error-text">Срочно обратитесь к администратору с кодом данной ошибки и подробным описанием действий, которые привели к этой ошибки.</p>
+            }
+
+            @if (Model.ErrorCode == 0)
+            {
+                <p class="error-title">Внутрення ошибка сервера.</p>
+                <p class="error-text">Срочно обратитесь к администратору с кодом данной ошибки и подробным описанием действий, которые привели к этой ошибки.</p>
+
+            }
+
+
+            @if (Model.ErrorCode is >= 1 and <= 99 || Model.ErrorCode >= 600)
+            {
+                <p class="error-title">Неизвестная ошибка @Model.ErrorCode</p>
+                <p class="error-text">Такой ошибки не существует либо она не предусмотрена.</p>
+            }
+        }
+    </div>
+</div>

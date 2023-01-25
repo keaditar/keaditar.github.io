@@ -1,0 +1,26 @@
+﻿@model DeleteUserJobAlertModel
+@{
+    ViewData["Title"] = "ТМЛ | Увольнение";
+    Layout = "/Views/_Layout.cshtml";
+    ViewData["IsOrg"] = true;
+
+    var user = await _BankServices.FindByIdAsync(Model.UserId);
+}
+
+<div class="box">
+    <div class="align-center money-block">
+        <p class="mega-money reg-codes"></p>
+    </div>
+    <form action="@Url.Action("DeleteOrgJobUser","Bank", new { orgJobId = Model.OrganizationJobId, userId =  Model.UserId, id = Model.OrganizationId })" method="post">
+        <div class="ucp-row-input align-center">
+
+            @Html.HiddenFor(m => m.OrganizationJobId)
+            @Html.HiddenFor(m => m.OrganizationId)
+            @Html.HiddenFor(m => m.UserId)
+
+            <p>Вы точно хотите уволить сотрудника '@user.Name'?</p>
+            <button class="button reg-button button-danger" type="submit">Удалить</button>
+        </div>
+    </form>
+</div>
+

@@ -1,0 +1,142 @@
+﻿@model List<ShopItem>
+@{
+    ViewData["Title"] = "AllItemsAdmin";
+    Layout = "/Views/_Layout.cshtml";
+
+    ViewData["IsShop"] = true;
+
+    var user = await _BankServices.GetUser();
+    var admin = true;
+    var prem = false;
+
+}
+
+    <div class="box">
+        <div class="block-container name-container c-white">
+            <h1 class="c-title text-normal">AllItemsAdmin</h1>
+        </div>
+
+        <a class="menu-url" href="@Url.Action("CreateItem", "Bank", new { id = 4 })"><i class="fas fa-chart-bar"></i> Создать</a>
+
+        <a class="menu-url" href="@Url.Action("AllItemsAdmin", "Bank")">Все предметы</a>
+        <a class="menu-url" href="@Url.Action("AllItemsAdmin", "Bank", new { type = "type_car", search = ViewBag.Search })"><i class="fas fa-car"></i> Машины</a>
+        <a class="menu-url" href="@Url.Action("AllItemsAdmin", "Bank", new { type = "type_home", search = ViewBag.Search })"><i class="fas fa-home"></i> Недвижимость</a>
+        <a class="menu-url" href="@Url.Action("AllItemsAdmin", "Bank", new { type = "type_accsessor", search = ViewBag.Search })"><i class="fas fa-ring"></i> Аксессуары</a>
+        <a class="menu-url" href="@Url.Action("AllItemsAdmin", "Bank", new { type = "type_clothes", search = ViewBag.Search })"><i class="fas fa-tshirt"></i> Одежда</a>
+        <a class="menu-url" href="@Url.Action("AllItemsAdmin", "Bank", new { type = "type_gadget", search = ViewBag.Search })"><i class="fas fa-phone"></i> Гаджеты </a>
+        <a class="menu-url" href="@Url.Action("AllItemsAdmin", "Bank", new { type = "type_other", search = ViewBag.Search })"><i class="fas fa-ellipsis-h"></i> Остальное</a>
+        <a class="menu-url" href="@Url.Action("AllItemsAdmin", "Bank", new { rare = 0, search = ViewBag.Search })">Обычные</a>
+        <a class="menu-url" href="@Url.Action("AllItemsAdmin", "Bank", new { rare = 1, search = ViewBag.Search })">Дорогие</a>
+        <a class="menu-url" href="@Url.Action("AllItemsAdmin", "Bank", new { rare = 2, search = ViewBag.Search })">Редкие</a>
+        <a class="menu-url" href="@Url.Action("AllItemsAdmin", "Bank", new { rare = 3, search = ViewBag.Search })">Эпичные</a>
+        <a class="menu-url" href="@Url.Action("AllItemsAdmin", "Bank", new { rare = 4, search = ViewBag.Search })">Легендарные</a>
+        <form class="admin-search-form" action="@Url.Action("AllItemsAdmin","Bank")" method="get">
+            <i class="fal fa-search icon-search"></i><input value="@ViewBag.Search" name="search" id="search" type="text" />
+        </form>
+
+        <div class="block-container posts-container">
+
+            @foreach (var lot in Model)
+            {
+                var org = await _BankServices.GetOrganizations(lot.OrgId);
+
+                var type = "";
+
+                if (lot.RareType == 0)
+                {
+                    type = "Обычная";
+                }
+                else if (lot.RareType == 1)
+                {
+                    type = "Дорогая";
+                }
+                else if (lot.RareType == 2)
+                {
+                    type = "Редкая";
+                }
+                else if (lot.RareType == 3)
+                {
+                    type = "Эпическая";
+                }
+                else if (lot.RareType == 4)
+                {
+                    type = "ЛЕГЕНДАРНАЯ";
+                }
+
+                var price = lot.Price;
+
+                if (prem)
+                {
+                    price = Convert.ToInt32(price * 0.9);
+                }
+
+                if (org == null)
+                {
+
+                    if (admin)
+                    {
+                        <div class="post-item no-padding block-item-rare-@lot.RareType" style="background: #dad8d8">
+                            <a href="@Url.Action("SingleItem", "Bank", new { id = lot.Id })" class="post-item-name">
+                                <div class="wpg-head">
+                                    <div class="wrapp-image-cut no-padding">
+                                        <img class="post-image" src="@lot.ImageUrl">
+                                    </div>
+
+                                    <span class="post-item-name post-item-name-url" href="@Url.Action("SingleItem", "Bank", new { id = lot.Id })">@lot.Name</span>
+                                </div>
+
+                            </a>
+                            <div class="wpg-list-info-block">
+                                <p class="post-item-text">@lot.Short_Desc</p>
+                                <p class="post-item-date"><i class="fas fa-comment-alt-dollar"></i> Стоимость @price.ToString("N0") Мемлар</p>
+                                <p class="post-item-date"><i class="fas fa-caret-square-right"></i> Редкость: <span class="text-rare-@lot.RareType">@type</span></p>
+                                <p class="post-item-date">Добавил: УДАЛЕНО</p>
+                                <p class="post-item-date">Осталось: @lot.Value Шт.</p>
+                                <p class="post-item-date">ID @lot.Id</p>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+
+                    <div class="post-item no-padding block-item-rare-@lot.RareType" style="@((lot.Value == 0) ? "background: #dad8d8;" : "")">
+                        <a href="@Url.Action("SingleItem", "Bank", new { id = lot.Id })" class="post-item-name">
+                            <div class="wpg-head">
+                                <div class="wrapp-image-cut no-padding">
+                                    <img class="post-image" src="@lot.ImageUrl">
+                                </div>
+
+                                <span class="post-item-name post-item-name-url" href="@Url.Action("SingleItem", "Bank", new { id = lot.Id })">@lot.Name</span>
+                            </div>
+
+                        </a>
+                        <div class="wpg-list-info-block">
+                            <p class="post-item-text">@lot.Short_Desc</p>
+                            <p class="post-item-date"><i class="fas fa-comment-alt-dollar"></i> Стоимость @price.ToString("N0") Мемлар</p>
+                            <p class="post-item-date"><i class="fas fa-caret-square-right"></i> Редкость: <span class="text-rare-@lot.RareType">@type</span></p>
+                            <p class="post-item-date">Добавил: @org.Name</p>
+                            <p class="post-item-date">Осталось: @lot.Value Шт.</p>
+                            <p class="post-item-date">ID @lot.Id</p>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+
+        <div class="navigatin-block">
+            <div class="nav-inner">
+                @for (var a = 1; a <= ViewBag.CountPage; a++)
+                {
+                    @if (a == @ViewBag.CurrectPage)
+                    {
+                        <a href="@Url.Action("AllItemsAdmin","Bank", new { page = a, type = ViewBag.Type, rare = ViewBag.Rare, search = ViewBag.Search })" class="navig on">@(a)</a>
+                    }
+                    else
+                    {
+                        <a href="@Url.Action("AllItemsAdmin","Bank", new { page = a, type = ViewBag.Type, rare = ViewBag.Rare, search = ViewBag.Search })" class="navig">@(a)</a>
+                    }
+                }
+            </div>
+        </div>
+    </div>

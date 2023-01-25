@@ -1,0 +1,224 @@
+﻿@model CheckItemTicketModel
+@{
+    ViewData["Title"] = "ТМЛ | Проверка товаров";
+    Layout = "/Views/_Layout.cshtml";
+
+    var org = new Organization {};
+
+    if (Model.shopItem != null)
+    {
+        org = await _BankServices.GetOrganizations(Model.shopItem.OrgId);
+    }
+}
+
+<div class="box">
+    @if (Model.shopItem != null)
+    {
+    <div class="block-container name-container c-white">
+        <h1 class="c-title text-normal">Товар от <a href="@Url.Action("SingleOrganization", "Bank", new { id = Model.shopItem.OrgId })" target="_blank">@org.Name</a> ( Ещё @(Model.Col - 1) )</h1>
+    </div>
+
+    <div class="block-container ucp-validation-error ucp-log-container" asp-validation-summary="ModelOnly"></div>
+
+    <div class="box">
+        <div class="block-container posts-container">
+
+            <div class="post-item no-padding">
+                <a href="@Url.Action("SingleItem", "Bank", new { id =  Model.shopItem.Id })" class="post-item-name">
+                    <div class="wpg-head">
+                        <div class="wrapp-image-cut no-padding">
+                            <img class="post-image" src="@Model.shopItem.ImageUrl">
+                        </div>
+
+                        <span class="post-item-name post-item-name-url" href="@Url.Action("SingleItem", "Bank", new { id =  Model.shopItem.Id })">@Model.shopItem.Name</span>
+                    </div>
+
+                </a>
+                <div class="wpg-list-info-block">
+                    <p class="post-item-text">@Model.shopItem.Short_Desc</p>
+                    <p class="post-item-date"><i class="fas fa-comment-alt-dollar"></i> Стоимость @Model.shopItem.Price.ToString("N0") Мемлар</p>
+                    <p class="post-item-date">Добавил: @org.Name</p>
+                    <p class="post-item-date">Осталось: @Model.shopItem.Value Шт.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="block-container ucp-info-block no-padding ucp-reg-inf-block">
+        <div>
+            <form asp-action="CheckItemTickets" asp-controller="Bank" asp-anti-forgery="true">
+                <div>
+                    @Html.HiddenFor(m => m.shopItem.Id)
+                    @Html.HiddenFor(m => m.shopItem.OrgId)
+                    @Html.HiddenFor(m => m.shopItem.AuthorId)
+
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="IsActive">Новый статус</label>
+                            <i class="req">*</i>
+                        </div>
+                        <div class="ucp-row-input">
+                            <input type="radio" asp-for="IsActive" value="Отказано" checked />Отказано<br />
+                            <input type="radio" asp-for="IsActive" value="Разрешено" />Разрешено
+                        </div>
+                    </div>
+
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="shopItem.Name">Название</label>
+                            <i class="req">*</i>
+                        </div>
+                        <div class="ucp-row-input">
+                            <input type="text" asp-for="shopItem.Name" />
+                            <span asp-validation-for="shopItem.Name" />
+                        </div>
+                    </div>
+
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="shopItem.Short_Desc">Краткое описание</label>
+                            <i class="req">*</i>
+                        </div>
+                        <div class="ucp-row-input">
+                            <textarea asp-for="shopItem.Short_Desc"></textarea>
+                            <span asp-validation-for="shopItem.Short_Desc" />
+                        </div>
+                    </div>
+
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="shopItem.CreateNum">Себестоимость</label>
+                            <i class="req">*</i>
+                        </div>
+                        <div class="ucp-row-input">
+                            <textarea asp-for="shopItem.CreateNum"></textarea>
+                            <span asp-validation-for="shopItem.CreateNum" />
+                        </div>
+                    </div>
+
+
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="shopItem.ImageUrl">Ссылка на картинку</label>
+                            <i class="req">*</i>
+                        </div>
+                        <div class="ucp-row-input">
+                            <input type="text" asp-for="shopItem.ImageUrl" />
+                            <span asp-validation-for="shopItem.ImageUrl" />
+                        </div>
+                    </div>
+
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="shopItem.Type">Тип</label>
+                            <i class="req">*</i>
+                        </div>
+                        <div class="ucp-row-input">
+                            <input type="text" asp-for="shopItem.Type" />
+                            <span asp-validation-for="shopItem.Type" />
+                            <ul class="ucp-row-input">
+                                <li>type_car ( машины )</li>
+                                <li>type_home ( недвижимость )</li>
+                                <li>type_accsessor ( аксуссуары )</li>
+                                <li>type_clothes ( одежда )</li>
+                                <li>type_gadget ( гаджеты и техника )</li>
+                                <li>type_other ( остальныое )</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="shopItem.RarePoint">Поинты предмета</label>
+                            <i class="req">*</i>
+                        </div>
+                        <div class="ucp-row-input">
+                            <input type="number" asp-for="shopItem.RarePoint" />
+                            <span asp-validation-for="shopItem.RarePoint" />
+                        </div>
+                    </div>
+
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="shopItem.isCaseItem">( Да - для кейсов, нет - для продажи )</label>
+                            <i class="req">*</i>
+                        </div>
+                        <div class="ucp-row-input">
+                            @Html.CheckBoxFor(m => m.shopItem.isCaseItem)
+                        </div>
+                    </div>
+
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="shopItem.RareType">Тип редкости</label>
+                            <i class="req">*</i>
+                        </div>
+                        <div class="ucp-row-input">
+                            <input type="text" asp-for="shopItem.RareType" />
+                            <span asp-validation-for="shopItem.RareType" />
+                            <ul class="ucp-row-input">
+                                <li>0 - Обыденная</li>
+                                <li>1 - Дорогая обыденная</li>
+                                <li>2 - Редкая</li>
+                                <li>3 - Эпическая</li>
+                                <li>4 - ЛЕГЕНДАРНАЯ</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="shopItem.Price">Цена</label>
+                            <i class="req">*</i>
+                        </div>
+                        <div class="ucp-row-input">
+                            <input type="number" asp-for="shopItem.Price" />
+                            <span asp-validation-for="shopItem.Price" />
+                        </div>
+                    </div>
+
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="shopItem.Value">Количество</label>
+                            <i class="req">*</i>
+                        </div>
+                        <div class="ucp-row-input">
+                            <input type="number" asp-for="shopItem.Value" />
+                            <span asp-validation-for="shopItem.Value" />
+                        </div>
+                    </div>
+
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="AdminInformation">Админ-информация</label>
+                            <i class="req">*</i>
+                        </div>
+                        <div class="ucp-row-input">
+                            <input type="text" asp-for="AdminInformation" />
+                            <span asp-validation-for="AdminInformation" />
+                        </div>
+                    </div>
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+
+                        </div>
+                        <div class="ucp-row-input align-center">
+                            <button class="button reg-button button-succ" type="submit">Сохранить</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    }
+    else
+    {
+    <p>На сегодня товары закончены, милорд!</p>
+    <a href="@Url.Action("Index","Bank")">На главную</a>
+    }
+</div>
+
+@section scripts{
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.14.0/jquery.validate.min.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validation.unobtrusive/3.2.6/jquery.validate.unobtrusive.min.js"></script>
+}

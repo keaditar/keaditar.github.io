@@ -1,0 +1,50 @@
+﻿@model List<UserTopItems>
+@{
+    ViewData["Title"] = "ТМЛ | Топ пользователей по предметам";
+    Layout = "/Views/_Layout.cshtml";
+
+    var a = 1;
+
+    var user = await _BankServices.GetUser();
+}
+
+<div class="box">
+    <p>Топ-15 пользователей по очкам предметов:</p>
+
+    @if (Model == null || Model.Count == 0)
+    {
+        <p>Список ещё не обновлися, перезайдите через 60 минут.</p>
+    }
+    else
+    {
+        <table>
+            <thead>
+                <tr>
+                    <td>Место</td>
+                    <td>Ник</td>
+                    <td>Общее количество очков</td>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var trans in Model)
+                {
+                    var userItem = await _BankServices.FindByIdAsync(trans.userId);
+                    <tr style="@((user != null && user.Id == userItem.Id) ? "background: #fdf7cc;transition: 0.2s;" : "" )">
+                        <td>
+                            @a
+                        </td>
+                        <td>
+                            <a href="@Url.Action("UserShopItem", "Bank", new { id = userItem.Id })">@Html.Raw(_BankServices.CompleteUserName(userItem))</a>
+                        </td>
+                        <td>
+                            @trans.ItemPoints Поинтов
+                        </td>
+                    </tr>
+                    a++;
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+

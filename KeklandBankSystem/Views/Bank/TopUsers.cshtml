@@ -1,0 +1,109 @@
+﻿@model List<User>
+@{
+    ViewData["Title"] = "ТМЛ | Топ самых богатых пользователей";
+    Layout = "/Views/_Layout.cshtml";
+
+    var a = 1;
+
+    var user = await _BankServices.GetUser();
+    var each = false;
+}
+
+<div class="box">
+    <p>Топ-15 богатых пользователей банка:</p>
+
+    @if (Model == null || Model.Count == 0)
+    {
+        <p>Список ещё не обновился, перезайдите через 60 минут.</p>
+    }
+    else
+    {
+        <table>
+            <thead>
+                <tr>
+                    <td>Место</td>
+                    <td>Ник</td>
+                    <td>Общий баланс</td>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var trans in Model)
+                {
+                    @if (user != null)
+                    {
+                        @if (user.Id == trans.Id)
+                        {
+                            each = true;
+                        }
+                    }
+
+                    <tr style="@((user != null && user.Id == trans.Id) ? "background: #fdf7cc;transition: 0.2s;" : "" )">
+                        <td>
+                            @a
+                        </td>
+                        <td>
+                            <a href="@Url.Action("Balance", "Bank", new { id = trans.Id })">@Html.Raw(_BankServices.CompleteUserName(trans))</a>
+                        </td>
+                        <td>
+                            @trans.Money Мемларов
+                        </td>
+                    </tr>
+                    a++;
+                }
+
+                @if (user != null)
+                {
+
+                    @if (each == false)
+                    {
+                        var dep = await _BankServices.GetDeposit(user);
+
+                        var items = await _BankServices.GetUserItem(user);
+
+                        var ret = new User { };
+
+                        var itemMoney = 0;
+
+                        foreach (var ite in items)
+                        {
+                            itemMoney += ite.Price;
+                        }
+
+                        if (dep != null)
+                        {
+                            ret = new User
+                            {
+                                Money = user.Money + dep.Money + itemMoney,
+                                Name = user.Name,
+                                Id = user.Id
+                            };
+                        }
+                        else
+                        {
+                            ret = new User
+                            {
+                                Money = user.Money + itemMoney,
+                                Name = user.Name,
+                                Id = user.Id
+                            };
+                        }
+
+                        <tr style="background: #fdf7cc;transition: 0.2s;">
+                            <td>
+                                Вы не в топе
+                            </td>
+                            <td>
+                                <a href="@Url.Action("Balance", "Bank", new { id = user.Id })">@Html.Raw(_BankServices.CompleteUserName(user))</a>
+                            </td>
+                            <td>
+                                @user.Money Мемларов
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+

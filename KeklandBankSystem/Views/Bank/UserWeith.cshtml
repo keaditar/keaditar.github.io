@@ -1,0 +1,63 @@
+﻿@model WeithUser
+@{
+    ViewData["Title"] = "ТМЛ | Благосостояние";
+    Layout = "/Views/_Layout.cshtml";
+
+    var user = await _BankServices.GetUser();
+
+    var myLevel = BankServices.WeithFormula(Model.MyLevel.Id);
+    var nextLevel = BankServices.WeithFormula(Model.MyLevel.Id + 1);
+
+    var percemtal = (float)(Model.Weith - myLevel) / (float)(nextLevel - myLevel) * 100.0f;
+
+}
+
+    <div class="box">
+        <a class="menu-url" href="@Url.Action("BuyWeith", "Bank")"><i class="fas fa-exchange-alt"></i> Купить очки благосостояния</a>
+
+        <div class="casino-block">
+            <div class="casino-upper-block" style="width: 60%;">
+                <span style="font-size: 50px;" class="js-user-coins odometer">@user.Money</span>
+                <span class="casino-downer-span">Ваши деньнги</span>
+            </div>
+
+            <div class="casino-upper-block" style="line-height: 22px;width: 22%;">
+                <div class="js-info-block casino-info-block inf">@Model.MyLevel.Name</div>
+                <span class="casino-downer-span">Уровень</span>
+            </div>
+        </div>
+        <div style="text-align: center;">
+            <!--<div>
+            <span style="font-size: 45px;" class="js-winBet">2.00</span>
+            <p style="color: #828282;font-size: 13px;">Возможный выигрыш</p>
+        </div>-->
+            <div style="display: inline-block;margin-right: 10px;">@Model.MyLevel.Name</div>
+            <div class="casino-bar-outer" style="width:65%; display: inline-block; margin: 0;">
+                <span style="position: absolute;color: #f1f1f1;text-shadow: 1px 1px #8a8a8a;">
+                    @(Model.Weith) / @nextLevel
+                </span>
+                <div class="casino-bar-inner a js-bar-casino" style="width: @((int)percemtal)%"></div>
+            </div>
+            <div style="display: inline-block;margin-left: 10px;">@Model.NextLevel.Name</div>
+        </div>
+
+        <div style="margin-top: 20px">
+            <p style="margin-top:10px">Информация:</p>
+            <div class="block-container ucp-valid-info ucp-log-container">
+                <ul>
+                    <li>Уровень благосостояния показывает ваш денежный статус.</li>
+                    <li>Вы сможете попасть на высокие должности, имея высокий статус.</li>
+                    <li>Благосостояние нужно для повышения актива как в организациях так и в банке.</li>
+                    <li><strong>1</strong> Благосостояние = <strong>90</strong> Мемлар.</li>
+                    <li>Благосостояние складывается из Поинтов предметов * 3.2 + Купленное благосостояние.</li>
+                    <li>Каждую неделю 2% купленнго благосостояния уменьшается.</li>
+                    <li><bold>ВАША СКИДКА В МАГАЗИНЕ: @((Model.MyLevel.Id-1) * 2)%</bold></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+        @section scripts{
+            <script src="~/js/lib/odometr.js"></script>
+            <link href="~/css/odometer-theme-default.css" rel="stylesheet" />
+        }

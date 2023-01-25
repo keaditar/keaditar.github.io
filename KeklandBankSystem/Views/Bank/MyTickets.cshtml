@@ -1,0 +1,53 @@
+﻿@model List<Ticket>
+@{
+    ViewData["Title"] = "ТМЛ | Мои прошения";
+    Layout = "/Views/_Layout.cshtml";
+}
+
+<div class="box">
+    <p class="text-marg">Тут можно увидить заявки на пополнение счёта, пополнить счёт можно <a href="@Url.Action("CreateTicket","Bank")">*тут*</a></p>
+    <p>Последние 10 прошений на аккаунте:</p>
+
+    <table>
+        <thead>
+            <tr>
+                <td>Дата</td>
+                <td>Количество</td>
+                <td>Комментарий</td>
+                <td>Решение</td>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var ticket in Model)
+            {
+                
+                    <tr>
+                        <td>
+                            @DateTimeTransform.ConvertDateTime(ticket.Date)
+                        </td>
+                        <td>
+                            @ticket.Value.ToString("N0") Мемлар
+                        </td>
+                        <td>
+                            @ticket.AdminComment
+                        </td>
+                        <td>
+                            @if (ticket.Status == "status_ok")
+                            {
+                                <span class="accepted-tick">Принято</span>
+                            }
+                            else if (ticket.Status == "status_declaim")
+                            {
+                                <span class="declaim-tick">Отказано</span>
+                            }
+                            else
+                            {
+                                <span class="timing-tick">На рассмотрении</span>
+                            }
+                        </td>
+                    </tr>
+            }
+        </tbody>
+    </table>
+</div>
+

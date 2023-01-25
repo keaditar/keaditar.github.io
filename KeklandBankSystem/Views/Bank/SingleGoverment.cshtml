@@ -1,0 +1,102 @@
+﻿@model SingleGov
+@{
+    ViewData["Title"] = "ТМЛ | " + Model.GovermentPolitical.Name;
+    Layout = "/Views/_Layout.cshtml";
+
+    var user = await _BankServices.GetUser();
+
+    var perm = await _BankServices.GetUserPermission(user);
+    var isAdmin = await _BankServices.UserIsInRole(user, "Administrator") || await _BankServices.UserIsInRole(user, "Owner");
+    var isAdminOrg = false;
+    if (user != null)
+    {
+        isAdminOrg = Model.GovermentPolitical.LeaderId == user.Id;
+    }
+    var userLeader = await _BankServices.FindByIdAsync(Model.GovermentPolitical.LeaderId);
+}
+
+<div class="box">
+    @if (user != null)
+    {
+        @if (user.Id == Model.GovermentPolitical.LeaderId || perm.EditGoverment || perm.CreateOrganization)
+        {
+            <a class="menu-url" href="@Url.Action("EditGovermentPolitical", "Bank", new { id = Model.GovermentPolitical.Id })"><i class="fas fa-edit"></i> Редактировать</a>
+            <a class="menu-url" href="@Url.Action("GetGovermentTaxes", "Bank", new { id = Model.GovermentPolitical.Id })"><i class="fas fa-edit"></i> Налог</a>
+            @if (user.Id == Model.GovermentPolitical.LeaderId || perm.CreateOrganization)
+            {
+                <a class="menu-url" href="@Url.Action("GovCreateOrganization", "Bank", new { id = Model.GovermentPolitical.Id })"><i class="fas fa-edit"></i> Создать гос. организацию</a>
+            }
+        }
+    }
+
+    <div class="gov-hover-main">
+        <img class="gov-hover-image" style="background: linear-gradient(to right, rgba(0, 0, 0, 0.65) 0%, rgba(0, 0, 0, 0.65) 100%), url(@Model.GovermentPolitical.ImageCoverUrl); background-size: cover; background-position: center;">
+        <p class="gov-text-main">@Model.GovermentPolitical.Name <a class="vk-href" target="_blank" href="@Model.GovermentPolitical.VKurl"><i class="fab fa-vk"></i></a></p>
+        <div class="gov-information-block">
+            <img src="@Model.GovermentPolitical.ImageFlagUrl" class="gov-image"><p>@Model.GovermentPolitical.Information</p>
+        </div>
+        <div class="bg-user-text-main">
+            @Html.Raw(_BankServices.CompleteUserName(userLeader))
+        </div>
+        <div class="gov-information-block money">
+            <p><i class="fas fa-coins"></i> @Html.Raw(IntTransform.ConvertInt(Model.GovermentPolitical.AllOrganizationBalance)), (@Model.GovermentPolitical.TaxesForOrganization %)</p>
+        </div>
+    </div>
+    <p class="org-separetor">Все организации:</p>
+    <div class="block-container posts-container">
+        @foreach (var org in Model.OrganizationsList)
+        {
+            var proxod = true;
+
+            @if (user == null)
+            {
+                proxod = false;
+            }
+            else
+            {
+                if (!isAdmin || !(Model.GovermentPolitical.LeaderId == user.Id))
+                {
+                    if (org.Status == "status_off")
+                    {
+                        proxod = false;
+                    }
+                }
+            }
+
+            @if (proxod)
+            {
+                <div class="post-item no-padding" style="@(org.Status != "status_ok"? "background: #e0e0e0;" : "")">
+                    <a href="@Url.Action("SingleOrganization", "Bank", new { id = org.Id })" class="post-item-name">
+                        <div class="wpg-head">
+                            <div class="wrapp-image-cut no-padding">
+                                <img class="post-image" style="background-image: linear-gradient( rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.65)), url(@org.ImageUrl);">
+                            </div>
+
+                            <span class="post-item-name post-item-name-url" href="@Url.Action("SingleOrganization", "Bank", new { id = org.Id })">@org.Name</span>
+                        </div>
+
+                    </a>
+                    <div class="wpg-list-info-block">
+                        <p class="post-item-text">@org.Short_Desc</p>
+                        @{
+                            var statuss = "";
+                            if (org.Status == "status_ok")
+                            {
+                                statuss = "Работает";
+                            }
+                            else if (org.Status == "status_off")
+                            {
+                                statuss = "Не работает";
+                            }
+                            else
+                            {
+                                statuss = "Заморожено";
+                            }
+                        }
+                        <p class="post-item-date"><i class="fas fa-comment-alt-dollar"></i> @statuss</p>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>

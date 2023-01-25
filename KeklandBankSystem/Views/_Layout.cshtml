@@ -1,0 +1,311 @@
+﻿@{
+    var user = await _BankServices.GetUser();
+    var perm = await _BankServices.GetUserPermission(user);
+
+    var col = _BankServices.GetCountTicket();
+    var tovar = await _BankServices.GetAllItems();
+    var col_news = (await _BankServices.GetAllNews()).Count(m => m.Type == "status_timing");
+    var tovar_int = tovar.Count(m => m.isActived == false);
+    var welfare = new WeithLevel { Id = -1 };
+
+    if (user != null)
+    {
+        welfare = await _BankServices.GetWeithLevelUser(user.WelfareItem + user.Welfare);
+    }
+
+    var numOrg = (await _BankServices.GetAllOrganizationEntity()).Count;
+    var numProj = (await _BankServices.GetAllProjectEntity()).Count;
+    var numGov = (await _BankServices.GetAllGovermentEntity()).Count;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+
+    <title>@ViewData["Title"]</title>
+    <link href="~/css/main.css" rel="stylesheet" />
+    <link rel="icon" type="image/x-icon" href="~/favicon.ico">
+
+    <script src="~/js/lib/jquery-3.3.1.min.js"></script>
+    <script src="https://vk.com/js/api/openapi.js?168" type="text/javascript"></script>
+
+    @RenderSection("scripts", required: false)
+
+    <script src="~/js/bar.js"></script>
+    <script>
+        function incrementCount() {
+            var dat;
+            $.ajax({
+                url: '@Url.Action("IncrementView", "Bank")',
+                type: 'POST',
+                async: false,
+
+                complete: function (data) {
+                    dat = JSON.parse(data.responseText);
+                }
+            });
+
+            $(".js-counterView").text(dat);
+        }
+    </script>
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-xVVam1KS4+Qt2OrFa+VdRUoXygyKIuNWUUUBZYv+n27STsJ7oDOHJgfF0bNKLMJF" crossorigin="anonymous">
+</head>
+<body onload="incrementCount()">
+    <div class="artcle-bar-logo logotype-a">
+        <div class="artcle-bar-logo">
+            <a href="/" class="image-wrapp">
+                <img class="image-outer" src="~/img/kek_bank.png" />
+            </a>
+        </div>
+    </div>
+
+    <div class="informator" style="background-image: linear-gradient(to right, rgba(35, 29, 29, 0.92) 0%, rgba(90, 66, 66, 0.72) 50%, rgba(35, 29, 29, 0.88) 100%), url(/img/bg-poster.webp);background-position: 55% 55%;">
+        <div class="container space-beetween">
+            <div class="artcle-bar-logo  hover-bg-mega">
+                <a href="/" class="article-flex logotype-size fix-zindex">
+                    <span>
+                        @if (ViewData["IsShop"] != null && (bool)ViewData["IsShop"])
+                        {
+                            <span class="logo-name">Центральный магазин</span>
+                            <span class="logo-slogan">Товары для всех</span>
+                        }
+                        else if (ViewData["IsOrg"] != null && (bool)ViewData["IsOrg"])
+                        {
+                            <span class="logo-name">Департамент организаций</span>
+                            <span class="logo-slogan">Только в будущее</span>
+                        }
+                        else
+                        {
+                            <span class="logo-name">Торговая Мемная Лига</span>
+                            <span class="logo-slogan">Только в будущее</span>
+                        }
+                    </span>
+                </a>
+            </div>
+
+            <div class="artcle-bar-logo fix-logo" style="max-width: none;z-index: 123;">
+                <ul class="non-decoration-ul identity-ul">
+                    @if (!(ViewData["ErrorCode"] != null && (int)ViewData["ErrorCode"] == 1200))
+                    {
+                        @if (user == null)
+                        {
+                            <li class="identity-button"><a class="identity-url" href="@Url.Action("Login", "Bank")">Войти</a></li>
+                            <li class="identity-button"><a class="identity-url" href="@Url.Action("Register", "Bank")">Регистрация</a></li>
+                        }
+                        else
+                        {
+
+                            <li class="identity-button identity-url-menu non-target-js">
+                                <div style="display: flex; align-items: center">
+                                    <div class="user-image-outer">
+                                        <img src="@user.ImageUrl" class="user-image-inner">
+                                    </div>
+                                    <a class="identity-url non-target-js" style="padding: 0!important;">
+                                        <span>@user.Name</span>
+                                    </a>
+                                </div>
+                            </li>
+
+                            @if (perm.CheckTickets || perm.CheckItems || perm.CheckNews || perm.GenerateRegCodes || perm.CreateOrganization
+           || perm.CreateProject || perm.CreatePromoCode || perm.CreateGoverment)
+                            {
+                                <li class="identity-button identity-url-admin non-target-js" style="margin-left: 10px;">
+                                    <a class="identity-url non-target-js">
+                                        <div>A</div>
+                                    </a>
+                                </li>
+                            }
+
+                            <li style="min-width: 105px;" class="identity-button"><a class="identity-url" href="@Url.Action("Balance", "Bank", new { id = user.Id })"><i class="fas fa-coins"></i> @Html.Raw(Html.Raw(IntTransform.ConvertInt(user.Money)))<span style="display:@(user.NonViewTrans ? "inherit" : "none")">( new )</span></a></li>
+                      
+                            <li style="margin-left: 10px; @(user.PremiumDay > 0? "background: #bf533b !important;" : "")" title="У вас @user.PremiumDay дней премиума" class="identity-button premium-button"><a href="@Url.Action("BuyPremium", "Bank")"><i class="fas fa-gem"></i></a></li>
+                            
+                            if (welfare.Id != -1)
+                            { 
+                                <li style="margin-left: 10px;" title="@welfare.Name" class="identity-button premium-button a"><a href="@Url.Action("UserWeith", "Bank")"><i class="fas fa-user-circle"></i></a></li>
+                            }
+                        }
+                    }
+                </ul>
+            </div>
+        </div>
+
+        @if (perm.CheckTickets || perm.CheckItems || perm.CheckNews || perm.GenerateRegCodes || perm.CreateOrganization
+            || perm.CreateProject || perm.CreatePromoCode || perm.CreateGoverment)
+        {
+        <div class="identity-menu-container-admin menu-container off-block-onclick" style="display: none;">
+            <span class="identity-arrow ident"></span>
+            <div class="menu-content">
+                <ul class="listPlain listColumns listColumns--narrow listColumns--together">
+                    @if (perm.CheckTickets)
+                    {
+                        <li><a href="@(Url.Action("CheckTickets", "Bank"))" class="menu-linkRow"><i class="fas fa-check"></i> Проверить прошения ( @col )</a></li>
+                    }
+                    @if (perm.CheckItems)
+                    {
+                        <li><a href="@(Url.Action("CheckItemTickets", "Bank"))" class="menu-linkRow"><i class="fas fa-shopping-bag"></i> Проверить товары ( @tovar_int )</a></li>
+                    }
+                    @if (perm.CheckNews)
+                    {
+                        <li><a href="@(Url.Action("CheckNews", "Bank"))" class="menu-linkRow"><i class="fas fa-newspaper"></i> Проверить новости (@col_news)</a></li>
+                    }
+                    @if (perm.GenerateRegCodes)
+                    {
+                        <li><a href="@(Url.Action("GenRegCode", "Bank"))" class="menu-linkRow"><i class="fas fa-code-branch"></i> Генерация рег-кодов</a></li>
+                    }
+                    @if (perm.CreateOrganization)
+                    {
+                        <li><a href="@(Url.Action("CreateOrganization", "Bank"))" class="menu-linkRow"><i class="fas fa-building-o"></i> Создание организации</a></li>
+                    }
+                    @if (perm.CreateProject)
+                    {
+                        <li><a href="@Url.Action("CreateProject", "Bank")" class="menu-linkRow"><i class="fas fa-project-diagram"></i> Создать проект</a></li>
+                    }
+                    @if (perm.CreatePromoCode)
+                    {
+                        <li><a href="@Url.Action("CreatePromoCode", "Bank")" class="menu-linkRow"><i class="fas fa-code"></i> Создать промокод</a></li>
+                    }
+                    @if (perm.CreateGoverment)
+                    {
+                        <li><a href="@Url.Action("CreateGoverment", "Bank")" class="menu-linkRow"><i class="fas fa-building-o"></i> Создать государство</a></li>
+                    }
+                </ul>
+            </div>
+        </div>
+        }
+
+        @if (user != null)
+        {
+        <div class="identity-menu-container menu-container off-block-onclick" style="display: none;">
+            <span class="identity-arrow ident"></span>
+            <div class="menu-content">
+                <div class="menu-row">
+                    <div class="contentRow">
+                        <div class="contentRow-main">
+                            <h3 class="contentRow-header"><a class="username">@user.Name</a></h3>
+                        </div>
+                    </div>
+
+                </div>
+
+                <hr class="menu-separator menu-separator--hard">
+
+                <ul class="listPlain listColumns listColumns--narrow listColumns--together">
+                    <li><a href="@(Url.Action("Balance", "Bank", new { id = user.Id}))" class="menu-linkRow"><i class="fas fa-coins"></i> Баланс</a></li>
+                    <li><a href="@(Url.Action("Transfer", "Bank"))" class="menu-linkRow"><i class="fas fa-exchange-alt"></i> Перевод</a></li>
+                    @if (!(perm.CheckTickets && user.Id != 1))
+                    {
+                        <li><a href="@(Url.Action("CreateTicket", "Bank"))" class="menu-linkRow"><i class="fa fa-plus"></i> Пополнить</a></li>
+                    }
+                    <li><a href="@(Url.Action("MyTickets", "Bank", new { id = user.Id}))" class="menu-linkRow"><i class="fa fa-ticket"></i> Мои прошения</a></li>
+                    <li><a href="@Url.Action("UserShopItem", "Bank", new { id = user.Id })" class="menu-linkRow"><i class="fas fa-shopping-bag"></i> Мои предметы</a></li>
+                    <li><a href="@Url.Action("MyDeposit", "Bank", new { id = user.Id })" class="menu-linkRow"><i class="fas fa-money-bill-alt"></i> Депозит</a></li>
+                    <li><a href="@Url.Action("ActiveCode", "Bank")" class="menu-linkRow"><i class="fas fa-code"></i> Активировать промокод</a></li>
+                    <li><a href="@Url.Action("EditUser", "Bank")" class="menu-linkRow"><i class="fas fa-cog"></i> Настройки</a></li>
+                    @if (await _BankServices.UserIsPresident(user) || user.Name == "Верховный Трибунал")
+                    {
+                        <li><a href="@Url.Action("GovEdit", "Bank")" class="menu-linkRow"><i class="fas fa-building"></i> Панель президента</a></li>
+                        <li><p href="" class="menu-costil"></p></li>
+                    }
+                </ul>
+                <hr class="menu-separator">
+                <form method="post" asp-controller="Bank" asp-action="Logout">
+                    <a class="ucp-url-button no-padding menu-linkRow">
+                        <input type="submit" class="ucp-url-text input-url-ucp input-off" value="Выйти" />
+                    </a>
+                </form>
+            </div>
+        </div>
+        }
+
+    <div class="container block-relative">
+        <nav class="bar-menu">
+            <ul class="topmenu">
+                <li>
+                    <a class="menu-block non-target-js" data-open="0"><i class="fas fa-project-diagram"></i> Основное</a>
+                    <ul class="submenu sub-ext-0 off-block-onclick" style="display:none">
+                        <li><a class="submenu-tile" href="@Url.Action("AllItems", "Bank")"><i class="fas fa-shopping-bag"></i> Магазин</a></li>
+                        <li><a class="submenu-tile" href="@Url.Action("AllProject", "Bank")"><i class="fas fa-project-diagram"></i> Проекты</a></li>
+                        <li><a class="submenu-tile" href="@Url.Action("LastTransactions", "Bank")"><i class="fas fa-exchange-alt"></i> Транзакции</a></li>
+                        <li><a class="submenu-tile" href="@Url.Action("TradeShop", "Bank")"><i class="fas fa-shopping-bag"></i> Рынок предметов</a></li>
+                        <li><a class="submenu-tile" href="@Url.Action("CreateNews", "Bank")"><i class="fas fa-newspaper"></i> Предложить новость</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a class="menu-block non-target-js" data-open="1"><i class="fas fa-chart-bar"></i> Статистика</a>
+                    <ul class="submenu sub-ext-1 off-block-onclick" style="display:none">
+                        <li><a class="submenu-tile" href="@Url.Action("Statistics", "Bank")"><i class="fas fa-chart-bar"></i> Статистика</a></li>
+                        <li><a class="submenu-tile" href="@Url.Action("TopUsers", "Bank")"><i class="fas fa-money-bill-wave"></i> Топ-10</a></li>
+                        <li><a class="submenu-tile" href="@Url.Action("ItemTopUser", "Bank")"><i class="fas fa-money-bill-wave"></i> Топ по предметам</a></li>
+                        <li><a class="submenu-tile" href="@Url.Action("CreateAd", "Bank")"><i class="fas fa-money-bill-wave"></i> Реклама</a></li>
+                    </ul>
+                </li>
+                @if (user != null)
+                {
+                    <li>
+                        <a class="menu-block non-target-js" data-open="2"><i class="far fa-gem"></i> Развлечения</a>
+                        <ul class="submenu sub-ext-2 off-block-onclick" style="display:none">
+                            <li><a class="submenu-tile" href="@Url.Action("CasinoMinMax", "Bank")"><i class="far fa-gem"></i> Казино</a></li>
+                            <li><a class="submenu-tile" href="@Url.Action("BuyCase", "Bank")">Купить ящик с предметами</a></li>
+
+                        </ul>
+                    </li>
+                }
+                @if (user != null)
+                {
+                    <li>
+                        <a class="menu-block non-target-js" data-open="3"><i class="fas fa-file"></i> Заявки @(user.newViewEntity > 0? "(" + user.newViewEntity + ")" : "" )</a>
+                        <ul class="submenu sub-ext-3 off-block-onclick" style="display:none">
+                            <li><a class="submenu-tile" href="@Url.Action("CreateTicketProject", "Bank")">Заявка на проект</a></li>
+                            <li><a class="submenu-tile" href="@Url.Action("CreateTicketOrganization", "Bank")">Заявка на организацию</a></li>
+                            <li><a class="submenu-tile" href="@Url.Action("CreateTicketGoverment", "Bank")">Заявка на государства</a></li>
+
+                            @if (perm.CheckProjects)
+                            {
+                                <li><a class="submenu-tile" href="@Url.Action("CheckEntityProject", "Bank")">Проверить проекты ( @numProj )</a></li>
+                            }
+                            @if (perm.CheckOrganization)
+                            {
+                                <li><a class="submenu-tile" href="@Url.Action("CheckEntityOrganization", "Bank")">Проверить организации ( @numOrg )</a></li>
+                            }
+                            @if (perm.CheckGoverments)
+                            {
+                                <li><a class="submenu-tile" href="@Url.Action("CheckEntityGoverment", "Bank")">Проверить государства ( @numGov )</a></li>
+                            }
+                        </ul>
+                    </li>
+                }
+                @if (user != null)
+                {
+                    <li>
+                        <a class="menu-block non-target-js" data-open="4"><i class="fas fa-exchange-alt"></i> Действия</a>
+                        <ul class="submenu sub-ext-4 off-block-onclick" style="display:none">
+                            <li><a class="submenu-tile" href="@Url.Action("CreateTicket", "Bank")"><i class="fas fa-cart-arrow-down"></i> Пополнить счёт</a></li>
+                            <li><a class="submenu-tile" href="@Url.Action("BuyCreateOrganization", "Bank")"><i class="fas fa-file-certificate"></i> Покупка лицензии</a></li>
+                        </ul>
+                    </li>
+                }
+                @if (perm.GetStatistics || perm.CreateArticles)
+                {
+                    <li>
+                        <a class="menu-block non-target-js" data-open="5"><i class="fas fa-exchange-alt"></i> Админ-панель</a>
+                        <ul class="submenu sub-ext-5 off-block-onclick" style="display:none">
+                            <li><a class="submenu-tile" href="@Url.Action("AdminTopUsers", "Bank")"><i class="fas fa-exchange-alt"></i> Все пользователи</a></li>
+                            <li><a class="submenu-tile" href="@Url.Action("AllItemsAdmin", "Bank")"><i class="fas fa-exchange-alt"></i> Все предметы</a></li>
+                            @if (perm.CreateArticles)
+                            {
+                                <li><a class="submenu-tile" href="@Url.Action("CreateArticle", "Bank")"><i class="fas fa-exchange-alt"></i> Создать артикль</a></li>
+                            }
+                        </ul>
+                    </li>
+                }
+            </ul>
+        </nav>
+
+        @RenderBody()
+    </div>
+    </div>
+</body>
+</html>

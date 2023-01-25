@@ -1,0 +1,23 @@
+﻿@model Articles
+@{
+    ViewData["Title"] = "ТМЛ | " + Model.MiniText;
+    Layout = "/Views/_Layout.cshtml";
+
+    var user = await _BankServices.GetUser();
+
+    var perm = await _BankServices.GetUserPermission(user);
+}
+@if (perm.CreateArticles)
+{
+    <a class="menu-url" href="@Url.Action("EditArticle","Bank", new { id = Model.Id })">Изменить</a>
+}
+<div class="box">
+    <div class="gov-hover-main" style="margin-top: 25px;">
+        <img class="gov-hover-image" style="background: linear-gradient(to right, rgba(0, 0, 0, 0.65) 0%, rgba(0, 0, 0, 0.65) 100%), url(@Model.ImageUrl); background-size: cover; background-position: center;">
+        <p class="gov-text-main">@Model.MiniText</p>
+    </div>
+
+    <div class="article-blog">
+        @Html.Raw(Model.HtmlText)
+    </div>
+</div>

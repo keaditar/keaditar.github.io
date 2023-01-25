@@ -1,0 +1,115 @@
+﻿@model CreatePassCodeModel
+@{
+    ViewData["Title"] = "ТМЛ | Создание промо-кода";
+    Layout = "/Views/_Layout.cshtml";
+}
+
+<div class="box">
+    <div class="block-container name-container c-white">
+        <h1 class="c-title text-normal">Создание промо-кода</h1>
+    </div>
+
+    <div class="block-container ucp-validation-error ucp-log-container" asp-validation-summary="ModelOnly"></div>
+
+    <table>
+        <thead>
+            <tr>
+                <td>Код</td>
+                <td>Количество</td>
+                <td>Тип</td>
+                <td>Значение поля 'Value'</td>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var passcode in Model.listPassCodes)
+            {
+                <tr>
+                    <td>
+                        @passcode.Code
+                    </td>
+                    <td>
+                        @passcode.Count
+                    </td>
+                    <td>
+                        @passcode.Type
+                    </td>
+                    <td>
+                        @passcode.Value
+                    </td>
+                </tr>
+            }
+
+        </tbody>
+    </table>
+
+    <div class="block-container ucp-info-block no-padding ucp-reg-inf-block">
+        <div>
+            <form asp-action="CreatePromoCode" asp-controller="Bank" asp-anti-forgery="true">
+                <div>
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="passcode.Code">Сам промо-код</label>
+                            <i class="req">*</i>
+                        </div>
+                        <div class="ucp-row-input">
+                            <input type="text" asp-for="passcode.Code" maxlength="20" />
+                        </div>
+                    </div>
+
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="passcode.Count">Количество промокодов</label>
+                            <i class="req">*</i>
+                        </div>
+                        <div class="ucp-row-input">
+                            <input type="number" asp-for="passcode.Count" />
+                        </div>
+                    </div>
+
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="passcode.Type">Тип промокода.</label>
+                            <i class="req">*</i>
+                            <ul style="margin-top: 10px;">
+                                <li><strong>type_money</strong> - Деньги</li>
+                                <li><strong>type_item</strong> - Предметы</li>
+                                <li><strong>type_premium</strong> - Премиум</li>
+                                <li><strong>type_nothing</strong> - Ничего, увы</li>
+                                <li><strong>type_moneyRandom</strong> - Рандомное количество денег, до определенного числа</li>
+                                <li><strong>type_itemRandom</strong> - Рандомный итем</li>
+                            </ul>
+                        </div>
+                        <div class="ucp-row-input">
+                            <input type="text" asp-for="passcode.Type" />
+                        </div>
+                    </div>
+
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="passcode.Value">Значение 'Value'</label>
+                            <i class="req">*</i>
+                        </div>
+                        <div class="ucp-row-input">
+                            <input type="text" asp-for="passcode.Value" />
+                        </div>
+                    </div>
+
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+
+                        </div>
+                        <div class="ucp-row-input align-center">
+                            <button class="button reg-button button-succ" type="submit">Создать</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.14.0/jquery.validate.min.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validation.unobtrusive/3.2.6/jquery.validate.unobtrusive.min.js"></script>
+}
+

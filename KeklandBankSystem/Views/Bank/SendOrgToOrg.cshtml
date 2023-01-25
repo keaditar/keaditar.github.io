@@ -1,0 +1,61 @@
+﻿@model TransferOrgToOrgModel
+@{
+    ViewData["Title"] = "ТМЛ | Беспроцентный перевод в другую организацию";
+    Layout = "/Views/_Layout.cshtml";
+
+    ViewData["IsOrg"] = true;
+
+    var org = await _BankServices.GetOrganizations(Model.orgId);
+}
+
+<div class="box">
+    <div class="block-container name-container c-white">
+        <h1 class="c-title text-normal">Беспроцентный перевод в организацию.</h1>
+    </div>
+
+    <div class="block-container ucp-validation-error ucp-log-container" asp-validation-summary="ModelOnly"></div>
+
+    <div class="block-container ucp-info-block no-padding ucp-reg-inf-block">
+        <div>
+            <form asp-action="SendOrgToOrg" asp-controller="Bank" asp-anti-forgery="true" method="post">
+                <div>
+                    @Html.HiddenFor(m => m.orgId)
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="OrgName">Название организации</label>
+                            <i class="req">*</i>
+                        </div>
+                        <div class="ucp-row-input">
+                            <input type="text" asp-for="OrgName" class="input-check" />
+                            <span asp-validation-for="OrgName" />
+                        </div>
+                    </div>
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="Count">Количество</label>
+                            <i class="req">*</i>
+                        </div>
+                        <div class="ucp-row-input">
+                            <input type="number" asp-for="Count" class="input-check" />
+                            <span asp-validation-for="Count" />
+                        </div>
+                    </div>
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+
+                        </div>
+                        <div class="ucp-row-input align-center">
+                            <button class="button reg-button button-succ" type="submit">Отправить</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.14.0/jquery.validate.min.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validation.unobtrusive/3.2.6/jquery.validate.unobtrusive.min.js"></script>
+}
+

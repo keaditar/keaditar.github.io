@@ -1,0 +1,88 @@
+﻿@model CreateOrganizationGov
+@{
+    ViewData["Title"] = "ТМЛ | Создание гос. организации";
+    Layout = "/Views/_Layout.cshtml";
+    ViewData["IsOrg"] = true;
+
+    var user = await _BankServices.GetUser();
+
+    var prem = _BankServices.UserHavePremium(user);
+}
+
+    <div class="box">
+        <div class="block-container name-container c-white">
+            <h1 class="c-title text-normal">Создание гос. организации</h1>
+        </div>
+        <div class="block-container ucp-valid-info ucp-log-container">
+            <ul>
+                <li>Администрация имеет право удалить организацию, если она нарушает правила.</li>
+            </ul>
+        </div>
+
+        <div class="block-container ucp-validation-error ucp-log-container" asp-validation-summary="ModelOnly"></div>
+
+        <div class="block-container ucp-info-block no-padding ucp-reg-inf-block">
+            <div>
+                <form asp-action="GovCreateOrganization" asp-controller="Bank" asp-anti-forgery="true" enctype="multipart/form-data">
+                    <div>
+                        @Html.HiddenFor(m => m.GovermentId)
+                        <div class="ucp-reg-input-div">
+                            <div class="ucp-row-label">
+                                <label asp-for="Name">Имя организации</label>
+                                <i class="req">*</i>
+                            </div>
+                            <div class="ucp-row-input">
+                                <input type="text" asp-for="Name" />
+                                <span asp-validation-for="Name" />
+                            </div>
+                        </div>
+                        <div class="ucp-reg-input-div">
+                            <div class="ucp-row-label">
+                                <label asp-for="Short_Desc">Краткое описание</label>
+                                <i class="req">*</i>
+                            </div>
+                            <div class="ucp-row-input">
+                                <textarea type="text" asp-for="Short_Desc"></textarea>
+                                <span asp-validation-for="Short_Desc" />
+                            </div>
+                        </div>
+                        <div class="ucp-reg-input-div">
+                            <div class="ucp-row-label">
+                                <label asp-for="ImageUrl">Картинка</label>
+                            </div>
+                            <div class="ucp-row-input image-row-input">
+                                <label class="image-button" for="ImageUrl">
+                                    <span class="text-image-s"><i class="fas fa-upload"></i> <span class="js-imageTexter">Загрузить картинку</span></span>
+                                </label>
+
+                                <input type="file" name="ImageUrl" id="ImageUrl" class="image-inp" onchange="prepareImageUpload(this);">
+                                <label>Или</label><input type="text" asp-for="ImageStringUrl">
+                            </div>
+                        </div>
+                        <div class="ucp-reg-input-div">
+                            <div class="ucp-row-label">
+                                <label asp-for="VkUrl">Ссылка на группу ВК</label>
+                            </div>
+                            <div class="ucp-row-input">
+                                <input type="text" asp-for="VkUrl" />
+                                <span asp-validation-for="VkUrl" />
+                            </div>
+                        </div>
+                        <div class="ucp-reg-input-div">
+                            <div class="ucp-row-label">
+
+                            </div>
+                            <div class="ucp-row-input align-center">
+                                <button class="button reg-button button-succ" type="submit">Создать</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+@section scripts{
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.14.0/jquery.validate.min.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validation.unobtrusive/3.2.6/jquery.validate.unobtrusive.min.js"></script>
+}

@@ -1,0 +1,132 @@
+﻿@model CreateAdModel
+@{
+    ViewData["Title"] = "ТМЛ | Создание рекламы";
+    Layout = "/Views/_Layout.cshtml";
+}
+
+<div class="box">
+    <div class="block-container name-container c-white">
+        <h1 class="c-title text-normal">Создание рекламы</h1>
+    </div>
+    <div class="block-container ucp-valid-info ucp-log-container">
+        <ul>
+            <li>Реклама на сайте меняется раз в 30 минут, вы покупаете количество показов.</li>
+            <li>Стоимость маленького баннера за один показ: <strong>400 Мемлар</strong>, большого: <strong>520 Мемлар</strong>.</li>
+            <li>Если у вас есть премиум, то стоимость снижаеться. Показ маленького: <strong>300 Мемлар</strong>, большого: <strong>420 Мемлар</strong>.</li>
+            <li>Минимальное количество - месяц ( 1488 показов ), минимальное один.</li>
+            <li>Размеры большой рекламы: 821x213, маленькой 410x218 ( на телефонах реклама сокращаеться, помещайте информацию в центр )</li>
+        </ul>
+    </div>
+    <div class="block-container ucp-validation-error ucp-log-container" asp-validation-summary="ModelOnly"></div>
+
+    <div class="block-container ucp-info-block no-padding ucp-reg-inf-block">
+        <div>
+            <form asp-action="CreateAd" asp-controller="Bank" asp-anti-forgery="true" enctype="multipart/form-data">
+                <div>
+
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="ImageUrl">Реклама</label>
+                        </div>
+                        <div class="ucp-row-input image-row-input">
+                            <label class="image-button" for="ImageUrl">
+                                <span class="text-image-s"><i class="fas fa-upload"></i> <span class="js-imageTexter">Загрузить картинки</span></span>
+                            </label>
+
+                            <input type="file" multiple name="ImageUrl" id="ImageUrl" class="image-inp" onchange="prepareImageUpload(this)">
+                            <label>Или</label><input type="text" asp-for="ImageStringUrl">
+                        </div>
+                    </div>
+
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="isBigger">Большая реклама?</label>
+                        </div>
+                        <div class="ucp-row-input">
+                            <input type="checkbox" asp-for="isBigger" class="js-isBigger" />
+                            <span asp-validation-for="isBigger" />
+                        </div>
+                    </div>
+
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="Url">Ссылка, при клике на рекламу</label>
+                        </div>
+                        <div class="ucp-row-input">
+                            <input type="text" asp-for="Url" />
+                            <span asp-validation-for="Url" />
+                        </div>
+                    </div>
+
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="Value">Количество показов</label>
+                        </div>
+                        <div class="ucp-row-input">
+                            <input type="number" asp-for="Value" onchange="updateMoney()" class="js-adInput" />
+                            <span asp-validation-for="Value" />
+                        </div>
+                    </div>
+
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+
+                        </div>
+                        <div class="ucp-row-input align-center">
+                            <span style="display: block;margin-bottom: 10px;">В итоге вы потратите: <strong class="js-adMometor"></strong> Мемлар</span>
+                            <button class="button reg-button button-succ" type="submit">Купить рекламу</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+        $(document).ready(function () {
+            updateMoney();
+        });
+
+        function updateMoney() {
+            var num = 0;
+            var isBigger = $(".js-isBigger").is(':checked');
+            var count = $(".js-adInput").val();
+
+            if (count > 0 && count < 1489) {
+
+             @{
+                 if (Model.UserIsPrem)
+                 {
+                     <text>
+                if (isBigger == true) {
+                    num = count * 420;
+                }
+                else {
+                    num = count * 300;
+                }
+                     </text>
+                 }
+                 else
+                 {
+                     <text>
+                if (isBigger == true) {
+                    num = count * 520;
+                }
+                else {
+                    num = count * 400;
+                }
+                     </text>
+                 }
+             }
+
+                $(".js-adMometor").text(num);
+            }
+            else $(".js-adMometor").text("Ошибка");
+        }
+    </script>
+    <!--<script src="~/ckeditor/ckeditor.js"></script>-->
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.14.0/jquery.validate.min.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validation.unobtrusive/3.2.6/jquery.validate.unobtrusive.min.js"></script>
+}

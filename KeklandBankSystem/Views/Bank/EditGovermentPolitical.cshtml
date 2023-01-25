@@ -1,0 +1,138 @@
+﻿@model EditGovermentPolitical
+@{
+    ViewData["Title"] = "ТМЛ | Изменение государства '" + Model.Name + "'";
+    Layout = "/Views/_Layout.cshtml";
+
+    var user = await _BankServices.GetUser();
+    ViewData["IsOrg"] = true;
+    var perm = await _BankServices.GetUserPermission(user);
+}
+
+<div class="box">
+    <div class="block-container name-container c-white">
+        <h1 class="c-title text-normal">Изменение государства '@Model.Name'</h1>
+    </div>
+
+    <div class="block-container ucp-validation-error ucp-log-container" asp-validation-summary="ModelOnly"></div>
+
+    <div class="block-container ucp-info-block no-padding ucp-reg-inf-block">
+        <div>
+            <form asp-action="EditGovermentPolitical" asp-controller="Bank" asp-anti-forgery="true" enctype="multipart/form-data">
+                <div>
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="Name">Имя государства</label>
+                            <i class="req">*</i>
+                        </div>
+                        <div class="ucp-row-input">
+                            <input type="text" asp-for="Name" />
+                            <span asp-validation-for="Name" />
+                        </div>
+                    </div>
+
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="Information">Информация о государстве</label>
+                            <i class="req">*</i>
+                        </div>
+                        <div class="ucp-row-input">
+                            <input type="text" asp-for="Information" />
+                            <span asp-validation-for="Information" />
+                        </div>
+                    </div>
+
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="VKurl">Ссылка на группу ВК</label>
+                            <i class="req">*</i>
+                        </div>
+                        <div class="ucp-row-input">
+                            <input type="text" asp-for="VKurl" />
+                            <span asp-validation-for="VKurl" />
+                        </div>
+                    </div>
+
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="LeaderName">Правитель государства (!)</label>
+                            <i class="req">*</i>
+                        </div>
+                        <div class="ucp-row-input">
+                            <input type="text" asp-for="LeaderName" />
+                            <span asp-validation-for="LeaderName" />
+                        </div>
+                    </div>
+
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="TaxesForOrganization">Установленный налог организаций</label>
+                            <i class="req">*</i>
+                        </div>
+                        <div class="ucp-row-input">
+                            <input type="number" asp-for="TaxesForOrganization" />
+                            <span asp-validation-for="TaxesForOrganization" />
+                        </div>
+                    </div>
+
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="ImageUrlCover">Фоновая картинка</label>
+                        </div>
+                        <div class="ucp-row-input image-row-input">
+                            <label class="image-button" for="ImageUrlCover">
+                                <span class="text-image-s"><i class="fas fa-upload"></i> <span class="js-imageTexter">Загрузить картинку</span></span>
+                            </label>
+
+                            <input type="file" name="ImageUrlCover" id="ImageUrlCover" class="image-inp" onchange="prepareImageUpload(this);">
+                            <label>Или</label><input type="text" asp-for="ImageUrlCover">
+                        </div>
+                    </div>
+
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+                            <label asp-for="ImageUrlFlag">Флаг</label>
+                        </div>
+                        <div class="ucp-row-input image-row-input">
+                            <label class="image-button" for="ImageUrlFlag">
+                                <span class="text-image-s"><i class="fas fa-upload"></i> <span class="js-imageTexter">Загрузить картинку</span></span>
+                            </label>
+
+                            <input type="file" name="ImageUrlFlag" id="ImageUrlFlag" class="image-inp" onchange="prepareImageUpload(this);">
+                            <label>Или</label><input type="text" asp-for="ImageUrlFlag">
+                        </div>
+                    </div>
+
+
+                    @Html.HiddenFor(m => m.Id)
+
+                    @if (perm.EditGoverment)
+                    {
+                        <div class="ucp-reg-input-div">
+                            <div class="ucp-row-label">
+                                <label asp-for="FreeOrganizationCreateCount">Количество бесплатных организаций</label>
+                                <i class="req">*</i>
+                            </div>
+                            <div class="ucp-row-input">
+                                <input type="number" asp-for="FreeOrganizationCreateCount" />
+                                <span asp-validation-for="FreeOrganizationCreateCount" />
+                            </div>
+                        </div>
+                    }
+                    <div class="ucp-reg-input-div">
+                        <div class="ucp-row-label">
+
+                        </div>
+                        <div class="ucp-row-input align-center">
+                            <button class="button reg-button button-succ" type="submit">Обновить</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.14.0/jquery.validate.min.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validation.unobtrusive/3.2.6/jquery.validate.unobtrusive.min.js"></script>
+}
