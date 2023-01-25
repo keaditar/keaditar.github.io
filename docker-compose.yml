@@ -1,0 +1,57 @@
+version: '3.4'
+
+services:
+  tml-classic-db:
+    container_name: tml-classic-db
+    image: postgres:latest
+    ports:
+      - ${DB_PORT}:5432
+    networks:
+      - tml-classic-network 
+      - rival-politics-core-database-network  
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASS}
+      - POSTGRES_DB=${DB_NAME}
+    restart: always
+
+  tml-classic-api:
+    image: dezare/tml-classic
+    container_name: tml-classic-api
+    depends_on:
+      - tml-classic-db
+    build:
+      context: .
+      dockerfile: KeklandBankSystem/Dockerfile
+    environment:
+      - API_ConnectionString=${API_ConnectionString}
+      - API_Environment=${API_Environment}
+      - API_HangFireUrling=${API_HangFireUrling}
+      - VkConnect_AppId=${VkConnect_AppId}
+      - VkConnect_SecretKey=${VkConnect_SecretKey}
+      - API_VKCALLBACKAPI_APISTRING=${API_VKCALLBACKAPI_APISTRING}
+      - API_VKCALLBACKAPI_SECRETSTRING=${API_VKCALLBACKAPI_SECRETSTRING}
+      - API_VKCALLBACKAPI_STRINGREQUEST=${API_VKCALLBACKAPI_STRINGREQUEST}
+      - API_VKCALLBACKAPI_GROUPID=${API_VKCALLBACKAPI_GROUPID}
+    networks:
+      - rival-politics-core-network
+      - tml-classic-network
+    ports:
+      - 5001:5001
+    volumes:
+      - /var/lib/docker/volumes/tml-classic-volume/_data/tml-classic/wwwroot/user_img:/app/wwwroot/user_img
+      - /var/lib/docker/volumes/tml-classic-volume/_data/tml-classic/wwwroot/userImages:/app/wwwroot/userImages
+      - /var/lib/docker/volumes/tml-classic-volume/_data/tml-classic/wwwroot/userImagesAds:/app/wwwroot/userImagesAds
+      - /var/lib/docker/volumes/tml-classic-volume/_data/tml-classic/wwwroot/userImagesStatic:/app/wwwroot/userImagesStatic
+      - /var/lib/docker/volumes/tml-classic-volume/_data/tml-classic/wwwroot/userImagesTicket:/app/wwwroot/userImagesTicket
+
+volumes:
+  tml-classic-volume:
+    external: true
+
+networks:
+  rival-politics-core-network:
+    external: true
+  rival-politics-core-database-network:
+    external: true    
+  tml-classic-network:
